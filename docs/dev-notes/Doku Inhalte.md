@@ -1,5 +1,6 @@
 ---
-
+sidebar_position: 1
+sidebar_label: Doku Inhalte
 ---
 
 # Plan for Coasti Documentation
