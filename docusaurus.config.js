@@ -115,7 +115,7 @@ const config = {
             items: [
               {
                 label: 'Tutorial',
-                to: '/docs/intro',
+                to: '/docs/getting-started/intro',
               },
             ],
           },
@@ -144,8 +144,12 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                label: 'Initiative Website',
+                href: 'https://coasti.org',
+              },
+              {
+                label: 'Produktseite',
+                href: 'https://coasti.de',
               },
               {
                 label: 'GitHub',
