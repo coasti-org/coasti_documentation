@@ -3,4 +3,47 @@ sidebar_position: 3
 sidebar_label: Install Coasti Content
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
+# Installing Coasti
+
+## Pre-requisite: UV
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+<Tabs groupId="os">
+	<TabItem value="macos-linux" label="macOS / Linux" default>
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+	</TabItem>
+	<TabItem value="windows" label="Windows">
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+	</TabItem>
+</Tabs>
+
+Get the coasti installer. More details on uv install methods [here](https://docs.astral.sh/uv/getting-started/features/#tools)
+
+```bash
+# as tool, global cli, creates an isolated environment
+uv tool install coasti
+
+# as package, installes into the current environment
+uv pip install coasti
+```
+
+Create a coasti project and install products
+
+```bash
+coasti init my_coasti_project
+cd my_coasti_project
+
+coasti product add "https://github.com/my_product_repo.git"
+```
