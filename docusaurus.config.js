@@ -12,7 +12,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'Coasti Documentation',
   tagline: 'The open source BI platform for digital sovereignty in BI',
-  favicon: 'img/favicon.ico',
+  favicon: 'coasti-icons/Bildung_icon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
