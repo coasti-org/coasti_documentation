@@ -218,3 +218,15 @@ ins {
 [data-theme='dark'] .navbar__logo svg {
   filter: brightness(1.35) contrast(1.15) drop-shadow(0 0 10px rgba(216, 236, 41, 0.18));
 }
+
+[data-theme='dark'] .breadcrumbs__link {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .breadcrumbs__item--active .breadcrumbs__link {
+  color: #d8ec29;
+  background: rgba(216, 236, 41, 0.2);
+  border: 1px solid rgba(216, 236, 41, 0.5);
+  font-weight: 600;
+}
