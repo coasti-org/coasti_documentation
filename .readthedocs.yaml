@@ -18,4 +18,4 @@ build:
     post_build:
       # Copy generated files into Read the Docs directory
       - mkdir --parents $READTHEDOCS_OUTPUT/html/
-      - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
+      - cp --recursive build/* $READTHEDOCS_OUTPUT/html/

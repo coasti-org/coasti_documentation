@@ -24,7 +24,7 @@ const config = {
   url: 'https://coasti.readthedocs.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/en/latest/',
 
   // Required for compatibility with Read the Docs
   trailingSlash: true,
