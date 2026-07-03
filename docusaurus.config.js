@@ -53,6 +53,12 @@ const config = {
     },
   },
 
+  // Enable Mermaid diagrams in Markdown
+  themes: ['@docusaurus/theme-mermaid'],
+  markdown: {
+      mermaid: true,
+  },
+
   presets: [
     [
       'classic',
