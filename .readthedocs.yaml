@@ -6,16 +6,14 @@ build:
     nodejs: "22"
   jobs:
     install:
-      # "docs/" directory was created using the command to create the site:
-      # npx create-docusaurus@latest docs classic
-      #
       # Install Docusaurus dependencies
-      - cd docs/ && npm install
+      - npm install
     build:
       html:
         # Build the site
-        - cd docs/ && npm run build
+        - npm run build
     post_build:
-      # Copy generated files into Read the Docs directory
+      # Expose the current RTD language build at the version root.
+      # This is required so /<language>/latest/ has an index.html at root.
       - mkdir --parents $READTHEDOCS_OUTPUT/html/
-      - cp --recursive build/* $READTHEDOCS_OUTPUT/html/
+      - cp --recursive build/${READTHEDOCS_LANGUAGE:-en}/latest/* $READTHEDOCS_OUTPUT/html/

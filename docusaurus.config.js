@@ -8,6 +8,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const readTheDocsVersion = process.env.READTHEDOCS_VERSION || 'latest';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Coasti Documentation',
@@ -21,10 +23,9 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://coasti.readthedocs.io/',
+  url: 'https://coasti.readthedocs.io',
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/en/latest/',
+  baseUrl: '/',
 
   // Required for compatibility with Read the Docs
   trailingSlash: true,
@@ -41,7 +42,15 @@ const config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['de','en'],
+    locales: ['en', 'de'],
+    localeConfigs: {
+      en: {
+        baseUrl: `/en/${readTheDocsVersion}/`,
+      },
+      de: {
+        baseUrl: `/de/${readTheDocsVersion}/`,
+      },
+    },
   },
 
   presets: [
@@ -50,6 +59,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           sidebarPath: './sidebars.js',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
@@ -76,6 +86,17 @@ const config = {
         },
       }),
     ],
+  ],
+
+  plugins: [
+    function rootRedirectPlugin() {
+      return {
+        name: 'root-redirect-plugin',
+        getClientModules() {
+          return ['./src/rootRedirect.js'];
+        },
+      };
+    },
   ],
 
   themeConfig:
@@ -119,7 +140,7 @@ const config = {
             items: [
               {
                 label: 'Tutorial',
-                to: '/docs/getting-started/intro',
+                to: '/getting-started/intro',
               },
             ],
           },
