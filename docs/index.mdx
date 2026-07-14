@@ -20,10 +20,10 @@ A coasti product definition consists of:
 | Layer | What it contains |
 |---|---|
 | **Frontend content** | All Superset objects for the product: dashboards, charts, datasets, and more |
-| **dbt project** | The transformation logic — engine-agnostic, runs on DuckDB, Postgres, or anything dbt supports |
+| **Orchestration** | A lightweight Python pipeline (currently built on [Hamilton](https://github.com/dagworks-inc/hamilton)) that ties the layers together |
+| **Transformation** | The transformation logic in dbt — engine-agnostic, runs on DuckDB, Postgres, or anything dbt supports |
 | **Ingestion** | How raw data enters the product, stored as Parquet files |
 | **Storage** | Local filesystem or S3 — your choice |
-| **Orchestration** | A lightweight Python pipeline (currently built on [Hamilton](https://github.com/dagworks-inc/hamilton)) that ties the layers together |
 
 Because each layer is defined declaratively inside the product, the whole thing is portable: the same product can run on a laptop with DuckDB and local files, or in production against Postgres and S3.
 
