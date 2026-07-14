@@ -3,7 +3,55 @@ sidebar_position: 1
 sidebar_label: Introduction
 ---
 
-# Introduction
+# What is coasti?
+
+**coasti is BI, thought of as products.**
+
+Most BI setups grow organically: dashboards live in one tool, transformations in another repo, ingestion scripts somewhere else, and getting the same report running for a second team or customer means stitching everything together again by hand.
+coasti turns this around. Everything a report needs — from raw data to the finished dashboard — is bundled into a single, versioned, installable **product**. Install it, answer a few questions, and you have a complete, working BI solution.
+Update it like you would update a package.
+
+## Anatomy of a coasti product
+
+![The coasti stack: ingestion, storage, dbt transformations, orchestration, and Superset frontend content bundled into one product](https://github.com/user-attachments/assets/acf96895-9d3b-412e-a012-6a5ef85492dc)
+
+A coasti product definition consists of:
+
+| Layer | What it contains |
+|---|---|
+| **Frontend content** | All Superset objects for the product: dashboards, charts, datasets, and more |
+| **dbt project** | The transformation logic — engine-agnostic, runs on DuckDB, Postgres, or anything dbt supports |
+| **Ingestion** | How raw data enters the product, stored as Parquet files |
+| **Storage** | Local filesystem or S3 — your choice |
+| **Orchestration** | A lightweight Python pipeline (currently built on [Hamilton](https://github.com/dagworks-inc/hamilton)) that ties the layers together |
+
+Because each layer is defined declaratively inside the product, the whole thing is portable: the same product can run on a laptop with DuckDB and local files, or in production against Postgres and S3.
+
+## The open-source stack
+
+coasti is built from a set of public repositories that work together:
+
+- **[coasti_installer](https://github.com/coasti-org/coasti_installer)** — installs complete products (dbt, ingestion, orchestration, frontend content) onto your machine. Question/answer files make deployment straightforward, and a built-in update function keeps installed products current.
+- **[superset_io](https://github.com/coasti-org/superset_io)** — extracts and loads all frontend content (dashboards, datasets, charts, …) from and to Superset, so the frontend layer of a product can be versioned like code.
+- **[superset_docker](https://github.com/coasti-org/superset_docker)** — Superset as a production-ready Docker stack.
+- **[superset_lucide_extension](https://github.com/coasti-org/superset_lucide_extension)** — a Lucide icon extension for Superset (soon integrated into our Docker image by default).
+
+## An open ecosystem of products
+
+The product format is open — **anyone is free to create and share their own coasti products.**
+A product is just a Git repository following the coasti structure, so building, versioning, and distributing one works exactly like it does for code.
+
+To see what a complete product looks like, check out our open-source example:
+- **[linkfish_genesis_stats](https://github.com/coasti-org/linkfish_genesis_stats)** — a full product built on official German statistics (GENESIS/Destatis and the Regionaldatenbank), from automated data download through dbt models to finished Superset dashboards. More open-source products will follow.
+
+Alongside the open-source products, we offer ready-made commercial products for specific domains — built on the same open format and installable the same way.
+
+## Matured in production
+
+coasti is not a greenfield experiment. The stack has been hardened in production environments at multiple customers — primarily German public administrations that run their day-to-day management reporting on it.
+Learn more at [coasti.de](https://coasti.de/).
+
+## Getting started
 
 There are three steps to entering the coasti world:
 
