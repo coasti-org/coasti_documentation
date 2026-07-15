@@ -15,8 +15,16 @@ npm install
 
 ## Local Development
 
+Docusaurus dev server only serves one locale at a time.
+For the default language, you would use this:
+
 ```bash
 npm run start
+```
+
+For a specific locale (e.g. `de`):
+```bash
+npm run start -- --locale de
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.

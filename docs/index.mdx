@@ -21,9 +21,9 @@ A coasti product definition consists of:
 |---|---|
 | **Frontend content** | All Superset objects for the product: dashboards, charts, datasets, and more |
 | **Orchestration** | A lightweight Python pipeline (currently built on [Hamilton](https://github.com/dagworks-inc/hamilton)) that ties the layers together |
-| **Transformation** | The transformation logic in dbt — engine-agnostic, runs on DuckDB, Postgres, or anything dbt supports |
+| **Transformation** | The transformation logic in dbt: engine-agnostic, runs on DuckDB, Postgres, or anything dbt supports |
 | **Ingestion** | How raw data enters the product, stored as Parquet files |
-| **Storage** | Local filesystem or S3 — your choice |
+| **Storage** | Local filesystem or S3: your choice |
 
 Because each layer is defined declaratively inside the product, the whole thing is portable: the same product can run on a laptop with DuckDB and local files, or in production against Postgres and S3.
 
@@ -31,10 +31,10 @@ Because each layer is defined declaratively inside the product, the whole thing 
 
 coasti is built from a set of public repositories that work together:
 
-- **[coasti_installer](https://github.com/coasti-org/coasti_installer)** — installs complete products (dbt, ingestion, orchestration, frontend content) onto your machine. Question/answer files make deployment straightforward, and a built-in update function keeps installed products current.
-- **[superset_io](https://github.com/coasti-org/superset_io)** — extracts and loads all frontend content (dashboards, datasets, charts, …) from and to Superset, so the frontend layer of a product can be versioned like code.
-- **[superset_docker](https://github.com/coasti-org/superset_docker)** — Superset as a production-ready Docker stack.
-- **[superset_lucide_extension](https://github.com/coasti-org/superset_lucide_extension)** — a Lucide icon extension for Superset (soon integrated into our Docker image by default).
+- **[coasti_installer](https://github.com/coasti-org/coasti_installer)**: installs complete products (dbt, ingestion, orchestration, frontend content) onto your machine. Answer files make deployment straightforward, and a built-in update function keeps installed products current.
+- **[superset_io](https://github.com/coasti-org/superset_io)**: extracts and loads all frontend content (dashboards, datasets, charts, …) from and to Superset, so the frontend layer of a product can be versioned like code.
+- **[superset_docker](https://github.com/coasti-org/superset_docker)**: Superset as a production-ready Docker stack.
+- **[superset_lucide_extension](https://github.com/coasti-org/superset_lucide_extension)**: a Lucide icon extension for Superset (soon integrated into our Docker image by default).
 
 ## An open ecosystem of products
 
@@ -42,13 +42,14 @@ The product format is open — **anyone is free to create and share their own co
 A product is just a Git repository following the coasti structure, so building, versioning, and distributing one works exactly like it does for code.
 
 To see what a complete product looks like, check out our open-source example:
-- **[linkfish_genesis_stats](https://github.com/coasti-org/linkfish_genesis_stats)** — a full product built on official German statistics (GENESIS/Destatis and the Regionaldatenbank), from automated data download through dbt models to finished Superset dashboards. More open-source products will follow.
+- **[linkfish_genesis_stats](https://github.com/coasti-org/linkfish_genesis_stats)**: a full product built on official German statistics (GENESIS/Destatis and the Regionaldatenbank), from automated data download through dbt models to finished Superset dashboards. More open-source products will follow.
 
 Alongside the open-source products, we offer ready-made commercial products for specific domains — built on the same open format and installable the same way.
 
 ## Matured in production
 
-coasti is not a greenfield experiment. The stack has been hardened in production environments at multiple customers — primarily German public administrations that run their day-to-day management reporting on it.
+coasti is not a greenfield experiment.
+The stack has been hardened in production environments at multiple customer sites — primarily public-sector organizations that run their day-to-day reporting on it.
 Learn more at [coasti.de](https://coasti.de/).
 
 ## Getting started
