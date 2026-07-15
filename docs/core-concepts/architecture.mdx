@@ -44,7 +44,9 @@ The **orchestration pipeline** — plain Python built on [Hamilton](https://gith
 
 **Engine-agnostic by separation.** Because raw data lives in Parquet and transformations live in dbt, the compute engine is swappable. The typical pattern: **DuckDB** for local development and small deployments, **Postgres** for production — same product, same models.
 
-**Transformations as engineered software.** Using dbt is not just an engine choice — it brings software-engineering discipline to the transformation layer. Every model is SQL in Git, so there is a **full version history**: what changed, when, by whom, and it can be reviewed or rolled back like any code. **Automated data tests** (uniqueness, not-null, referential integrity, custom checks) run with every pipeline execution, catching broken source data before it ever reaches a dashboard. And dbt generates **documentation and lineage** from the models themselves, so the path from raw column to dashboard KPI stays traceable as products grow.
+**Transformations as engineered software.** Using dbt is not just an engine choice — it brings software-engineering discipline to the transformation layer. Every model is SQL in Git, so there is a **full version history**: what changed, when, by whom, and it can be reviewed or rolled back like any code.
+
+**Automated data tests** (uniqueness, not-null, referential integrity, custom checks) run with every pipeline execution, catching broken source data before it ever reaches a dashboard. And dbt generates **documentation and lineage** from the models themselves, so the path from raw column to dashboard KPI stays traceable as products grow.
 
 **Deliberately boring orchestration.** No Airflow cluster, no scheduler infrastructure. A coasti pipeline is Python you can read, run, and debug directly. For products that refresh daily or weekly, this is a feature, not a limitation.
 
