@@ -4,10 +4,58 @@ sidebar_label: Startseite
 slug: /
 ---
 
-# Coasti Dokumentation
+# Was ist coasti?
 
-Aktuell noch im Aufbau 🚧
+**coasti ist BI, als Produkt gedacht.**
 
-Weitere Inhalte folgen in den nächsten Wochen!
+Die meisten BI-Landschaften wachsen organisch: Dashboards leben in einem Tool, Transformationen in einem anderen Repository, Ingestion-Skripte irgendwo dazwischen. Soll derselbe Bericht für ein zweites Team oder einen weiteren Kunden laufen, wird alles von Hand neu zusammengesetzt.
 
-[Getting Started](/getting-started/intro)
+coasti dreht das um. Alles, was ein Bericht braucht — von den Rohdaten bis zum fertigen Dashboard — wird in ein einziges, versioniertes, installierbares **Produkt** gebündelt. Installieren, ein paar Fragen beantworten, fertig ist eine vollständige, lauffähige BI-Lösung. Aktualisiert wird sie wie ein Software-Paket.
+
+## Aufbau eines coasti-Produkts
+
+![Der coasti-Stack: Ingestion, Storage, dbt-Transformationen, Orchestrierung und Superset-Frontend-Inhalte, gebündelt in einem Produkt](https://github.com/user-attachments/assets/acf96895-9d3b-412e-a012-6a5ef85492dc)
+
+Eine coasti-Produktdefinition besteht aus:
+
+| Ebene | Inhalt |
+|---|---|
+| **Frontend content** | Alle Superset-Objekte des Produkts: Dashboards, Charts, Datasets und mehr |
+| **Orchestration** | Eine schlanke Python-Pipeline (aktuell auf Basis von [Hamilton](https://github.com/dagworks-inc/hamilton)), die alle Ebenen verbindet |
+| **Transformation** | Die Transformationslogik in dbt — Engine-agnostisch, läuft auf DuckDB, Postgres oder allem, was dbt unterstützt |
+| **Ingestion** | Wie Rohdaten in das Produkt gelangen, abgelegt als Parquet-Dateien |
+| **Storage** | Lokales Dateisystem oder S3 — Sie haben die Wahl |
+
+Weil jede Ebene deklarativ im Produkt definiert ist, ist das Ganze portabel: Dasselbe Produkt läuft auf dem Laptop mit DuckDB und lokalen Dateien genauso wie in Produktion mit Postgres und S3.
+
+## Der Open-Source-Stack
+
+coasti besteht aus einer Reihe öffentlicher Repositories, die zusammenspielen:
+
+- **[coasti_installer](https://github.com/coasti-org/coasti_installer)** — installiert vollständige Produkte (dbt, Ingestion, Orchestrierung, Frontend-Inhalte) auf Ihrem Rechner. Frage-Antwort-Dateien machen das Deployment einfach, eine integrierte Update-Funktion hält installierte Produkte aktuell.
+- **[superset_io](https://github.com/coasti-org/superset_io)** — extrahiert und lädt alle Frontend-Inhalte (Dashboards, Datasets, Charts, …) aus und nach Superset, sodass die Frontend-Ebene eines Produkts wie Code versioniert werden kann.
+- **[superset_docker](https://github.com/coasti-org/superset_docker)** — Superset als produktionsreifer Docker-Stack.
+- **[superset_lucide_extension](https://github.com/coasti-org/superset_lucide_extension)** — eine Lucide-Icon-Erweiterung für Superset (wird künftig standardmäßig in unser Docker-Image integriert).
+
+## Ein offenes Produkt-Ökosystem
+
+Das Produktformat ist offen — **jeder kann eigene coasti-Produkte erstellen und teilen.** Ein Produkt ist einfach ein Git-Repository nach coasti-Struktur; Bauen, Versionieren und Verteilen funktionieren also genau wie bei Code.
+
+Wie ein vollständiges Produkt aussieht, zeigt unser Open-Source-Beispiel:
+
+- **[linkfish_genesis_stats](https://github.com/coasti-org/linkfish_genesis_stats)** — ein komplettes Produkt auf Basis amtlicher Statistikdaten (GENESIS/Destatis und Regionaldatenbank), vom automatischen Datendownload über dbt-Modelle bis zu fertigen Superset-Dashboards. Weitere Open-Source-Produkte folgen.
+
+Neben den Open-Source-Produkten bieten wir fertige kommerzielle Produkte für einzelne Fachbereiche an — aufgebaut auf demselben offenen Format und auf demselben Weg installierbar.
+
+## In der Praxis gereift
+
+coasti ist kein Experiment auf der grünen Wiese. Der Stack ist in Produktionsumgebungen bei mehreren Kunden gereift — vor allem in deutschen Verwaltungen, die ihr tägliches Berichtswesen darauf betreiben. Mehr dazu auf [coasti.de](https://coasti.de/).
+
+## Erste Schritte
+
+Drei Schritte führen in die coasti-Welt:
+ 
+1. Ausprobieren auf dem [coasti-Demo-Server](./getting-started/demo-server.mdx)
+2. Lernen, wie Sie [coasti installieren](./getting-started/install-coasti-content.mdx) und Content-Pakete auf dem eigenen Rechner einrichten
+3. Loslegen und [eigene coasti-Inhalte erstellen](./getting-started/create-content.mdx)
+ 
