@@ -1,0 +1,26 @@
+{
+  "sidebar.documentationSidebar.category.Core Concepts": {
+    "message": "Grundkonzepte",
+    "description": "The label for category Core Concepts in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Getting Started": {
+    "message": "Erste Schritte",
+    "description": "The label for category Getting Started in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Admin Guide": {
+    "message": "Administration",
+    "description": "The label for category Admin Guide in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Developer Guide": {
+    "message": "Entwicklerhandbuch",
+    "description": "The label for category Developer Guide in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Contributing": {
+    "message": "Mitwirken",
+    "description": "The label for category Contributing in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Dev Notes": {
+    "message": "Entwicklungsnotizen",
+    "description": "The label for category Dev Notes in sidebar documentationSidebar"
+  }
+}
