@@ -151,6 +151,16 @@
   background-color: var(--ifm-hover-overlay-bg);
 }
 
+.copyButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.copyButton:disabled:hover {
+  opacity: 0.35;
+  background-color: transparent;
+}
+
 .copyButtonSvg {
   width: 1rem;
   height: 1rem;
@@ -179,6 +189,22 @@
   word-break: inherit;
   font-family: inherit;
   color: #FBFCFC;
+}
+
+.terminal_render_line {
+  display: inline;
+}
+
+.terminal_prompt_line {
+  color: #FBFCFC;
+}
+
+.terminal_highlight_line {
+  color: #FBFCFC;
+}
+
+.terminal_output_line {
+  color: #A6B0BA;
 }
 
 /* Typewriter blinking cursor */

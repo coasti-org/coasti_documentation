@@ -49,17 +49,34 @@ function getFencedCodeText(children) {
 }
 
 const PROMPT_MARKER = "[prompt]";
+const HIGHLIGHT_MARKER = "[highlight]";
 
-function parsePromptLine(line) {
-  if (!line.startsWith(PROMPT_MARKER)) {
-    return { line, forceCommandAnimation: false };
+function parseReservedLineMarkers(line) {
+  let parsedLine = line;
+  let forceCommandAnimation = false;
+  let forceHighlight = false;
+
+  while (true) {
+    if (parsedLine.startsWith(PROMPT_MARKER)) {
+      forceCommandAnimation = true;
+      parsedLine = parsedLine
+        .slice(PROMPT_MARKER.length)
+        .replace(/^\s?/, "");
+      continue;
+    }
+
+    if (parsedLine.startsWith(HIGHLIGHT_MARKER)) {
+      forceHighlight = true;
+      parsedLine = parsedLine
+        .slice(HIGHLIGHT_MARKER.length)
+        .replace(/^\s?/, "");
+      continue;
+    }
+
+    break;
   }
 
-  const stripped = line
-    .slice(PROMPT_MARKER.length)
-    .replace(/^\s?/, "");
-
-  return { line: stripped, forceCommandAnimation: true };
+  return { line: parsedLine, forceCommandAnimation, forceHighlight };
 }
 
 // Auto-scales speed based on line count so long terminals don't drag on.
@@ -89,6 +106,15 @@ const CheckIcon = (props) => (
   </svg>
 );
 
+const ReplayIcon = (props) => (
+  <svg viewBox="0 0 24 24" {...props}>
+    <path
+      fill="currentColor"
+      d="M12,5V1L7,6L12,11V7C15.31,7 18,9.69 18,13C18,16.31 15.31,19 12,19C8.69,19 6,16.31 6,13H4C4,17.42 7.58,21 12,21C16.42,21 20,17.42 20,13C20,8.58 16.42,5 12,5Z"
+    />
+  </svg>
+);
+
 export default function Terminal({
   children,
   title,
@@ -97,6 +123,7 @@ export default function Terminal({
   typewriterSpeed,
   typewriterLineDelay,
   copyOnlyPrompts = false,
+  highlightPrompts = false,
 }) {
   const displayTitle = title || "";
   const containerRef = useRef(null);
@@ -116,22 +143,24 @@ export default function Terminal({
     return map;
   }, [mdxComponents]);
 
-  const { terminalText, commandLineFlags } = useMemo(() => {
+  const { terminalText, commandLineFlags, highlightLineFlags } = useMemo(() => {
     const fencedCodeText = getFencedCodeText(children);
     const sourceText =
       fencedCodeText !== null ? fencedCodeText : getCopyText(children, headingPrefixMap);
 
     const parsedLines = sourceText.split("\n").map((rawLine) => {
-      const { line, forceCommandAnimation } = parsePromptLine(rawLine);
+      const { line, forceCommandAnimation, forceHighlight } = parseReservedLineMarkers(rawLine);
       return {
         line,
         isCommand: forceCommandAnimation || /^\s*[$#]/.test(line),
+        isHighlight: forceHighlight,
       };
     });
 
     return {
       terminalText: parsedLines.map((entry) => entry.line).join("\n"),
       commandLineFlags: parsedLines.map((entry) => entry.isCommand),
+      highlightLineFlags: parsedLines.map((entry) => entry.isHighlight),
     };
   }, [children, headingPrefixMap]);
 
@@ -144,6 +173,11 @@ export default function Terminal({
   const animCommandFlags = useMemo(
     () => (typewriter ? commandLineFlags : []),
     [typewriter, commandLineFlags],
+  );
+
+  const animHighlightFlags = useMemo(
+    () => (typewriter ? highlightLineFlags : []),
+    [typewriter, highlightLineFlags],
   );
 
   const copyText = useMemo(() => {
@@ -240,6 +274,15 @@ export default function Terminal({
     setAnimDone(true);
   }, [typewriter, animDone, animLines]);
 
+  const replayAnimation = useCallback(() => {
+    if (!typewriter) return;
+    setHasBeenVisible(true);
+    setRevealedLines([]);
+    setLineIdx(0);
+    setCharIdx(0);
+    setAnimDone(false);
+  }, [typewriter]);
+
   const handleCopy = useCallback(async () => {
     const textToCopy = copyText;
     try {
@@ -260,8 +303,37 @@ export default function Terminal({
   const animDisplay = useMemo(() => {
     if (!typewriter || animDone) return null;
     const partial = animLines[lineIdx]?.slice(0, charIdx) ?? "";
-    return [...revealedLines, partial].join("\n");
+    return [...revealedLines, partial];
   }, [typewriter, animDone, revealedLines, lineIdx, charIdx, animLines]);
+
+  const animDisplayFlags = useMemo(() => {
+    if (!typewriter || animDone) return null;
+    return animCommandFlags.slice(0, revealedLines.length + 1);
+  }, [typewriter, animDone, animCommandFlags, revealedLines.length]);
+
+  const animDisplayHighlightFlags = useMemo(() => {
+    if (!typewriter || animDone) return null;
+    return animHighlightFlags.slice(0, revealedLines.length + 1);
+  }, [typewriter, animDone, animHighlightFlags, revealedLines.length]);
+
+  const renderTerminalLines = useCallback((lines, commandFlags, highlightFlags, keyPrefix) => {
+    return lines.map((line, idx) => (
+      <span
+        key={`${keyPrefix}-${idx}`}
+        className={clsx(
+          styles.terminal_render_line,
+          highlightPrompts && {
+            [styles.terminal_prompt_line]: commandFlags[idx] ?? false,
+            [styles.terminal_highlight_line]: highlightFlags[idx] ?? false,
+            [styles.terminal_output_line]: !((commandFlags[idx] ?? false) || (highlightFlags[idx] ?? false)),
+          },
+        )}
+      >
+        {line}
+        {idx < lines.length - 1 ? "\n" : ""}
+      </span>
+    ));
+  }, [highlightPrompts]);
 
   const isAnimating = typewriter && !animDone;
 
@@ -284,6 +356,26 @@ export default function Terminal({
           </div>
 
         <div className={styles.terminal_header_actions}>
+          <button
+            type="button"
+            aria-label="Replay terminal animation"
+            className={clsx(
+              "clean-btn",
+              "button--sm",
+              "button--secondary",
+              styles.copyButton,
+              styles.replayButton,
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              replayAnimation();
+            }}
+            disabled={!typewriter}
+            title={typewriter ? "Replay animation" : "Typewriter is disabled"}
+          >
+            <ReplayIcon className={styles.copyButtonSvg} />
+          </button>
+
           <button
             type="button"
             aria-label="Copy code to clipboard"
@@ -324,14 +416,19 @@ export default function Terminal({
             </span>
             {/* Animated text overlaid on the ghost */}
             <span className={styles.terminal_overlay}>
-              {animDisplay}
+              {renderTerminalLines(
+                animDisplay,
+                animDisplayFlags ?? [],
+                animDisplayHighlightFlags ?? [],
+                "anim",
+              )}
               <span className={styles.cursor} aria-hidden="true">
                 ▋
               </span>
             </span>
           </>
         ) : (
-          terminalText
+          renderTerminalLines(terminalText.split("\n"), commandLineFlags, highlightLineFlags, "static")
         )}
       </pre>
     </div>
@@ -350,4 +447,6 @@ Terminal.propTypes = {
   typewriterLineDelay: PropTypes.number,
   /** If true, copy button copies only command/prompt lines ($/#/[prompt]). */
   copyOnlyPrompts: PropTypes.bool,
+  /** If true, visually highlights prompt/highlight lines and dims regular output lines. */
+  highlightPrompts: PropTypes.bool,
 };
