@@ -1,0 +1,135 @@
+# 🖥️ Terminal Component
+
+A stylized terminal emulator UI for Docusaurus pages. Ideal for showcasing CLI commands, installation steps, or shell output in a visually engaging format.
+
+[Source](https://www.avonture.be/blog/docusaurus-terminal-typewriter/)
+
+## ✨ Features
+
+- 🧑‍💻 Linux-style header with icon and control dots
+- 📝 Customizable terminal title
+- 💻 Styled code block for terminal content
+- 🎨 Theme-friendly layout using scoped CSS
+- ⌨️ Optional typewriter animation — command lines typed char-by-char, output appears whole
+
+## Example
+
+Out-of-the-box, here is how the component will looks like:
+
+![Example](sample.png)
+
+## 📁 Location
+
+This component lives at `src/components/Terminal/index.js`.
+
+## 🚀 Usage
+
+```jsx
+import Terminal from "@site/src/components/Terminal";
+
+<Terminal title="user@machine: ~/project">npm install npm run build</Terminal>;
+```
+
+If no title is provided, the default is: `christophe@home: ~`
+
+### With Word Wrapping Disabled
+
+```jsx
+<Terminal wrap={false}>
+  $ echo "This is a very long line that should not wrap unless explicitly allowed"
+</Terminal>
+```
+
+## 🛠 Props
+
+| Prop                  | Type              | Required | Default                       | Description                                                                                                                                                                                                                                               |
+| --------------------- | ----------------- | -------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `children`            | `React.ReactNode` | ✅*      | —                             | Terminal content to display. Not needed when `source` is used (plugin injects it automatically).                                                                                                                                                          |
+| `source`              | string            | ❌       | —                             | Path to an external `.txt` file relative to the article (e.g. `./files/terminal-1.txt`). The `remark-snippet-loader` plugin reads the file at build time and injects its content as children. Use this to keep long terminal outputs out of the MDX file. |
+| `title`               | string            | ❌       | `user@machine: ~/yourproject` | Optional terminal title shown in the header                                                                                                                                                                                                               |
+| `wrap`                | boolean           | ❌       | `true`                        | Enables word wrapping in the terminal body. Set to `false` to disable it.                                                                                                                                                                                 |
+| `typewriter`          | boolean           | ❌       | `false`                       | Enables typewriter animation. Lines starting with `$` or `#` are typed char-by-char; output lines appear whole. Click the terminal to skip. Animation starts only when the terminal scrolls into view.                                                    |
+| `typewriterSpeed`     | number            | ❌       | auto                          | ms per character on command lines. Omit to auto-scale: ≤5 lines→40, ≤10→25, ≤20→20, >20→12.                                                                                                                                                               |
+| `typewriterLineDelay` | number            | ❌       | auto                          | ms before each output line appears. Omit to auto-scale: ≤5 lines→400, ≤10→200, ≤20→150, >20→100.                                                                                                                                                          |
+
+\* `children` is required when `source` is not provided.
+
+### Loading content from a file (`source`)
+
+For long terminal outputs (typically > 5 lines), you can store the content in a separate `.txt` file and reference it with `source`. The `remark-snippet-loader` plugin injects the file content at build time — no runtime fetch involved.
+
+```jsx
+<Terminal typewriter source="./files/terminal-1.txt" />
+```
+
+The file `./files/terminal-1.txt` is co-located with the article (same `files/` subfolder used by `Snippet`). Its content is plain text, exactly as it would appear inline:
+
+```text
+$ docker compose up --detach
+[+] Running 2/2
+ ✔ Network demo_default  Created
+ ✔ Container counter     Started
+```
+
+All other props (`typewriter`, `title`, `wrap`, etc.) work exactly the same.
+
+### Typewriter mode example
+
+```jsx
+<Terminal title="user@machine: ~/project" typewriter>
+  {`$ docker compose up -d
+[+] Running 3/3
+ ✔ Network myapp_default   Created
+ ✔ Container myapp-db-1    Started
+ ✔ Container myapp-web-1   Started`}
+</Terminal>
+```
+
+Speed is auto-scaled from line count by default — no need to set `typewriterSpeed` or `typewriterLineDelay` manually. Override only when you want a specific pacing:
+
+```jsx
+<Terminal typewriter typewriterSpeed={60} typewriterLineDelay={600}>
+  {`$ fzf --version
+0.54.3`}
+</Terminal>
+```
+
+## 💡 Command Detection
+
+Lines starting with `$` or `>` are treated as commands and rendered with a prompt symbol (`>`). This helps visually distinguish commands from output.
+
+## 🎨 Styling
+
+This component uses scoped CSS via `styles.module.css`. Key classes include:
+
+- `.terminal` — outer container
+- `.terminal_header` — header bar
+- `.terminal_left` — icon + title
+- `.terminal_controls` — control dots
+- `.terminal_body` — code block area
+- `.terminal_line` — individual line
+- `.prompt` — command prompt symbol
+- `.no_wrap` — disables word wrapping
+- `.dot.red`, `.dot.yellow`, `.dot.green` — control dot colors
+
+Customize these styles to match your site's design system.
+
+## ⚠️ Escaping $
+
+When writing shell commands inside JSX, be mindful that the `$` symbol is interpreted by JavaScript as the start of a template literal (e.g., `${variable}`). To prevent this and ensure your command renders correctly in the terminal, you’ll need to escape `$` signs using a backslash (`\`). For example:
+
+```jsx
+<Terminal>
+  {`$ docker run --detach --name step_1_2 -p 81:80 -v $(pwd):/var/www/html -u \${UID}:\${GID} php:8.1.5-apache`}
+</Terminal>
+```
+
+This ensures that `\${UID}` and `\${GID}` are treated as literal strings rather than JavaScript expressions. Without escaping, your code may throw an error or render incorrectly.
+
+## 📄 License
+
+MIT — free to use and modify.
+
+## 💬 AI generated
+
+This code has been generated by Christophe Avonture using Google Gemini and Claude Code.
