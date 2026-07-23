@@ -180,10 +180,21 @@ ins {
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+
+html[data-theme='dark'] {
+  background-color: #082f3b;
+}
+
 [data-theme='dark'] body {
+  background: transparent;
+}
+
+[data-theme='dark'] .main-wrapper {
   background:
     radial-gradient(circle at top left, rgba(216, 236, 41, 0.12), transparent 22%),
     linear-gradient(180deg, #0d4b60 0%, #082f3b 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 
 [data-theme='dark'] .theme-doc-sidebar-container,

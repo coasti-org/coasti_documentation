@@ -145,7 +145,7 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
+                label: "Work in progress 🚧 Stay tuned!",
                 to: '/',
               },
             ],

@@ -1,43 +1,291 @@
 ---
 sidebar_position: 3
-sidebar_label: Install Coasti Content
+sidebar_label: Installation
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Installing Coasti
+# Installation
 
-## Pre-requisite: UV
+We can get from zero to a working report in superset in about 10 minutes.
+The installation requires some dependencies and the use of command-line tools.
+This tutorial walks you through the process, shows the commands and explains each step.
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+Let's start by gathering the needed dependencies.
+
+:::note
+For production deployments, we set up coasti so that superset runs on a different machine than the transformations. This way, expensive computations of the data-pipeline do not affect the user experience. For simplicity, we put both on the same host in this tutorial.
+:::
+
+## Get the coasti installer
+
+The coasti installer is a small python package that wraps around existing open-source tools.
+It allows us to create and manage coasti projects, set up version control, and to add or update content.
+
+The easiest way to get the coasti installer is through [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 <Tabs groupId="os">
 	<TabItem value="macos-linux" label="macOS / Linux" default>
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+        <Terminal>
+        ```bash
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+
+        uv tool install coasti
+        ```
+        </Terminal>
 
 	</TabItem>
+
 	<TabItem value="windows" label="Windows">
 
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
+        <Terminal>
+        ```powershell
+        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+        uv tool install coasti
+        ```
+        </Terminal>
 
 	</TabItem>
 </Tabs>
 
-Get the coasti installer. More details on uv install methods [here](https://docs.astral.sh/uv/getting-started/features/#tools)
 
+To check it worked, try the help option:
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={60} typewriterLineDelay={0}>
 ```bash
-# as tool, global cli, creates an isolated environment
-uv tool install coasti
+[prompt] coasti --help
 
-# as package, installes into the current environment
-uv pip install coasti
+ Usage: coasti [OPTIONS] COMMAND [ARGS]...
+
+ Coasti Installer - Initialize projects and install products.
+
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --verbose  -v      INTEGER  Increase verbosity (-v, -vv, -vvv) [default: 0]  │
+│ --quiet    -q               Avoid user prompts                               │
+│ --help                      Show this message and exit.                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ version      Shows the version of the coasti installer.                      │
+│ init         Initialize a coasti workspace                                   │
+│ product      List, add or update products.                                   │
+│ superset-io  Import or export superset frontend assets.                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```
+</Terminal>
+
+
+
+## Initialize a coasti project
+
+All products, content and metadata that you use with coasti live in a central folder, a _coasti project_.
+Projects are initialized via `coasti init` and you need to provide a folder path to use.
+
+We recommend to use an absolute and simple path like `/coasti`.
+This makes it a bit easier to map configs into containers, where it helps to use the same paths inside and out.
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={60}>
+```bash
+[prompt] coasti init /coasti
+
+🎤 Do you want to setup version control?
+   (Without version control, you will have to update products manually)
+[highlight]    local
+
+Copying from template version 0.2.2
+    create  tools
+    create  tools/.gitkeep
+    create  products
+    create  products/.gitkeep
+    create  .gitignore
+    create  config
+    create  config/secrets
+    create  config/secrets/sample_pass
+    create  config/secrets/vcs_auth_coasti
+    create  config/products.yml
+    create  config/install_answers.yml
+    create  config/tools.yml
+    create  logs
+    create  logs/.gitkeep
+    create  data
+    create  data/.gitkeep
+
+ > Running task 1 of 4: git init
+   Initialized empty Git repository in /coasti/.git/
+ > Running task 2 of 4: git add .
+ > Running task 3 of 4: git commit -m "Coasti init"
+   [main (root-commit) 044656e] Coasti init
+   6 files changed, 57 insertions(+)
+   create mode 100644 .gitignore
+   create mode 100644 config/install_answers.yml
+   create mode 100644 config/products.yml
+   create mode 100644 config/tools.yml
+   create mode 100644 products/.gitkeep
+   create mode 100644 tools/.gitkeep
+
+Coasti folder structure created at "/coasti"
+
+Next steps:
+
+- Change directory to the project root:
+    cd /coasti
+
+- See "README.md" and start coding.
+
+- To add products, see:
+    coasti product --help
+
+- Push the local repo to your remote origin:
+    git push --set-upstream origin main
+```
+</Terminal>
+
+
+## Install Apache Superset
+
+With the coasti project set up, we can add superset as a product.
+We provide a batteries-included [docker image](https://github.com/coasti-org/superset_docker.git) that streamlines the installation.
+
+First, coasti asks a few questions on how to get the product.
+This lets you choose which branch to use (products are just git repositories) or how to gain access, if your product is in a private repo. Because superset is in a public repo, we dont need authentication.
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+```bash
+[prompt] cd /coasti
+[prompt] coasti product add https://github.com/coasti-org/superset_docker.git
+
+🎤 Install location:
+[highlight]    products/superset_docker
+
+🎤 Version control reference (git branch, tag or commit)
+[highlight]    main
+
+Added superset_docker in products.yml
+
+🎤 Do you want to install superset_docker now?
+[highlight]    No
+```
+</Terminal>
+
+
+After adding superset as a product to coasti's metadata, we are asked to _install it_.
+We can either do this directly (type `y` or `↵`) or install later via `coasti product install`.
+
+This will clone the repository, and guide us through the questions needed to configure superset.
+For most questions, choosing the default by pressing `↵` is fine.
+
+You can later check the details based on your answers in `/coasti/products/superset_docker/config/.env`.
+
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40} typewriterLineDelay={150}>
+```bash
+[prompt] coasti product install superset_docker
+
+Using copier to install superset_docker. Downloading...
+
+🎤 Domain of the superset instance
+[highlight]    localhost
+
+🕵️ Superset secret key (generated randomly by default)
+[highlight]    ****************************************************************
+
+🎤 Superset Admin User Name
+[highlight]    admin
+
+🕵️ Superset Admin User Password (generated randomly by default)
+[highlight]    *****
+
+🎤 Superset Admin User Email (also used for caddy ssl certificates)
+[highlight]    admin@example.com
+
+🎤 Do you want to configure superset's email reports?
+[highlight]    No
+
+🎤 Do you want to create a copy of the example configs for easier editing?
+   (config/superset_config.py and docker/docker-compose.yml)
+[highlight]    Yes
+
+Copying from template version 0.1.4.post4.dev0+b214409
+    create  docker
+    ...
+    create  translations/README.md
+
+ > Running task 1 of 4: cp config/superset_config_sample.py config/superset_config.py
+ > Running task 2 of 4: cp docker/docker-compose-sample.yml docker/docker-compose.yml
+
+Superset folder structure created at "/coasti/products/superset_docker"
+
+Next steps
+==========
+
+- You must put 'superset_config.py' and '.env' into your .gitignore!
+
+- Check your config/.env, it contains you given answers and generated passwords.
+
+- Pull docker images:
+    docker compose -f ./docker/docker-compose.yml --env-file ./config/.env pull
+
+- Start the stack:
+    docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up superset-app
+```
+</Terminal>
+
+To launch superset, we follow the suggested next steps.
+This will download the docker image, and launch the container.
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+```bash
+[prompt] cd /coasti/products/superset_docker
+[prompt] docker compose -f ./docker/docker-compose.yml --env-file ./config/.env pull
+[+] pull 4/4
+ ✔ Image caddy:2                                                   Pulled     1.2s
+ ✔ Image ghcr.io/coasti-org/superset_docker:0.1.4-superset.6.1.0   Pulled     1.5s
+ ✔ Image postgres:17                                               Pulled     2.6s
+ ✔ Image redis:7                                                   Pulled     1.3s
+```
+</Terminal>
+
+
+To launch superset, we follow the suggested next steps.
+This will download the docker image, and launch the container.
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+```bash
+[prompt] docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up superset-app
+[+] up 3/3
+ ✔ Container superset-postgres                                    Created     0.2s
+ ✔ Container superset-caddy                                       Created     0.3s
+ ✔ Container superset-redis                                       Created     0.2s
+Attaching to superset-app
+Container superset-postgres Healthy
+Container superset-caddy Healthy
+Container superset-redis Healthy
+superset-app  | ==============================================
+superset-app  | Starting Apache Superset Web Server
+superset-app  | ==============================================
+superset-app ...
+```
+</Terminal>
+
+
+Now, we can open a browser and navigate to http://localhost:8088 to login with the credentials we entered earlier.
+
+With the `up` command we just used, we launched the superset-app container and attached to it. This directly shows all output in the Terminal.
+To stop the container, and return to our shell, we can press `ctrl + c`.
+
+If we want the superset containers to run in the background, we can start detached by using `docker compose up -d`
+
+<Terminal>
+```bash
+docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up -d superset-app
+```
+</Terminal>
+
+
+## Content
+
 
 Create a coasti project and install products
 
