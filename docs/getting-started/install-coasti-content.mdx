@@ -12,18 +12,31 @@ We can get from zero to a working report in superset in about 10 minutes.
 The installation requires some dependencies and the use of command-line tools.
 This tutorial walks you through the process, shows the commands and explains each step.
 
-Let's start by gathering the needed dependencies.
+In short, we will cover the following steps:
+
+- Install the coasti CLI.
+- Initialize a new coasti project folder.
+- Setup our Superset docker container.
+- Add a demo content package and run its setup to prepare local configuration.
+- Execute the transformation pipeline to get the BI data ready and deploy it to Superset.
+- Upload the packages frontend assets to Superset.
 
 :::note
 For production deployments, we set up coasti so that superset runs on a different machine than the transformations. This way, expensive computations of the data-pipeline do not affect the user experience. For simplicity, we put both on the same host in this tutorial.
 :::
+
+## Requirements
+
+- [docker](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
+- [git](https://git-scm.com/install/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (used in this tutorial, but most python package managers will do)
 
 ## Get the coasti installer
 
 The coasti installer is a small python package that wraps around existing open-source tools.
 It allows us to create and manage coasti projects, set up version control, and to add or update content.
 
-The easiest way to get the coasti installer is through [uv](https://docs.astral.sh/uv/getting-started/installation/):
+The easiest way to get the coasti installer is through uv:
 
 <Tabs groupId="os">
 	<TabItem value="macos-linux" label="macOS / Linux" default>
@@ -151,7 +164,7 @@ We provide a batteries-included [docker image](https://github.com/coasti-org/sup
 First, coasti asks a few questions on how to get the product.
 This lets you choose which branch to use (products are just git repositories) or how to gain access, if your product is in a private repo. Because superset is in a public repo, we dont need authentication.
 
-<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
 [prompt] cd /coasti
 [prompt] coasti product add https://github.com/coasti-org/superset_docker.git
@@ -179,7 +192,7 @@ For most questions, choosing the default by pressing `↵` is fine.
 You can later check the details based on your answers in `/coasti/products/superset_docker/config/.env`.
 
 
-<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40} typewriterLineDelay={150}>
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={150}>
 ```bash
 [prompt] coasti product install superset_docker
 
@@ -235,7 +248,7 @@ Next steps
 To launch superset, we follow the suggested next steps.
 This will download the docker image, and launch the container.
 
-<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
 [prompt] cd /coasti/products/superset_docker
 [prompt] docker compose -f ./docker/docker-compose.yml --env-file ./config/.env pull
@@ -251,7 +264,7 @@ This will download the docker image, and launch the container.
 To launch superset, we follow the suggested next steps.
 This will download the docker image, and launch the container.
 
-<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={40}>
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
 [prompt] docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up superset-app
 [+] up 3/3
@@ -272,6 +285,8 @@ superset-app ...
 
 Now, we can open a browser and navigate to http://localhost:8088 to login with the credentials we entered earlier.
 
+![Superset Landing Page](/frontend-screenshots/superset_landing_page.webp)
+
 With the `up` command we just used, we launched the superset-app container and attached to it. This directly shows all output in the Terminal.
 To stop the container, and return to our shell, we can press `ctrl + c`.
 
@@ -283,15 +298,197 @@ docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up -d sup
 ```
 </Terminal>
 
+## Adding content and running dbt
 
-## Content
+Now that we have superset up and running, let's add some reports.
 
+Here, we use the [demo package](https://github.com/coasti-org/linkfish_genesis_stats) that shows a few selected stats from [Destatis](https://www.destatis.de).
 
-Create a coasti project and install products
-
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={150}>
 ```bash
-coasti init my_coasti_project
-cd my_coasti_project
+[prompt] cd /coasti
+[prompt] coasti product add https://github.com/coasti-org/linkfish_genesis_stats
 
-coasti product add "https://github.com/my_product_repo.git"
+🎤 Optional: How to authenticate at https://github.com/coasti-org/linkfish_genesis_stats
+[prompt]    skip
+
+🎤 Unique Product identifier:
+[prompt]    linkfish_genesis_stats
+
+🎤 Install location:
+[prompt]    products/linkfish_genesis_stats
+
+🎤 Version control reference (git branch, tag or commit)
+[prompt]    main
+
+Updated linkfish_genesis_stats in products.yml
+🎤 Do you want to install linkfish_genesis_stats now?
+[prompt]    Yes
+
+Using copier to install linkfish_genesis_stats. Downloading...
+
+========================================
+  Installation Genesis Statistik
+========================================
+
+Zum Konfigurieren der Installation bitte folgende Fragen beantworten:
+
+🎤 Welches dbt-Profil soll standardmäßig verwendet werden?
+[prompt]   lfgs_duckdb
+
+🎤 Wo soll die DuckDB erzeugt werden, die für ETL genutzt wird?
+[prompt]   /coasti/products/linkfish_genesis_stats/data/lfgs_etl.duckdb
+
+🎤 Wohin soll die verkleinerte DuckDB kopiert werden, die Superset lädt?
+[prompt]   /coasti/products/superset_docker/data/linkfish_genesis_stats.duckdb
+
+🎤 Soll die benötigte Umgebung erstellt werden (python/.venv)?
+[prompt]   Yes
+
+🎤 Soll der Daten-Download von Gestatis konfiguriert werden?
+     Benötigt zwei Accounts:
+     https://genesis.destatis.de/datenbank/online
+     https://www.regionalstatistik.de/genesis/online
+[prompt]   No
+
+Copying from template version 1.0.0
+    create  coasti_install_answers.yml
+    create  LICENSE
+    create  .gitignore
+    create  CHANGELOG.md
+    ...
+
+ > Running task 1 of 2: uv --directory ./python sync
+Using CPython 3.12.11
+Creating virtual environment at: .venv
+
+ > Running task 2 of 2: python ./python/rollout.py
+
+========================================
+  Creating required directories
+========================================
+
+Checked data directory: data
+Checked data directory: logs
+
+========================================
+  Copying sample files
+========================================
+
+Copied sample: config/genesis_sources.yml
+Copied sample: config/linkfish_genesis_stats.code-workspace
+Copied sample: config/profiles.yml
+Copied sample: python/orchestration.py
+
+========================================
+  Installation abgeschlossen
+========================================
+
+"linkfish_genesis_stats" installiert nach "/coasti/products/linkfish_genesis_stats"
+
+========================================
+  Nächste Schritte
+========================================
+
+- In den Produkt-Ordner wechseln:
+    cd /coasti/products/linkfish_genesis_stats
+
+- Workspace in vscode öffnen:
+    code config/linkfish_genesis_stats.code_workspace
+
+- Ggf. Anpassen folgender Beispiele in config/
+    - config/genesis_sources.yml
+    - config/profiles.yml
+
+- Orchestrierung starten (erster Aufruf dauert etwas):
+    uv run --project ./python ./python/orchestration.py --help
+    uv run --project ./python ./python/orchestration.py run --env-file ./config/.env --log-file ./logs/lfgs.log -s all
 ```
+</Terminal>
+
+
+To get us started quickly, the example already contains raw data, so that we do not need an ingestion and can omit the download step.
+However, we still need to run the transformations that will create the BI data for our reports.
+
+The following command is the bread-and butter step of a the content package.
+In a production setup, it would run regularly, e.g. every night, to fetch new raw data, process it, and update the BI data visible in the reports.
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={50}>
+```bash
+[prompt] cd /coasti/products/linkfish_genesis_stats
+[prompt] uv run --project python ./python/orchestration.py run --env-file ./config/.env --select all --omit download_seeds
+
+... output truncated
+
+                                Orchestration run complete
+                     ╷        ╷
+  Step               │ Status │ Log
+ ════════════════════╪════════╪══════════════════════════════════════════════════════════
+  dbt_deps           │ PASS   │ 14:06:37  Running with dbt=1.9.10
+                     │        │ ...
+                     │        │ 14:06:38  Up to date!
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  list_versions      │ PASS   │ DBT Package Versions:
+                     │        │ linkfish_genesis_stats 1.0.0
+                     │        │ dbt-labs/dbt_utils 1.4.1
+                     │        │ pystatis 0.5.5
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  dbt_seed           │ PASS   │ 14:06:39  Running with dbt=1.9.10
+                     │        │ 14:06:39  Registered adapter: duckdb=1.9.6
+                     │        │ ...
+                     │        │ 14:06:40  Done. PASS=9 WARN=0 ERROR=0 SKIP=0 TOTAL=9
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  dbt_run            │ PASS   │ 14:06:42  Running with dbt=1.9.10
+                     │        │ 14:06:42  Registered adapter: duckdb=1.9.6
+                     │        │ ...
+                     │        │ 14:06:43  Done. PASS=22 WARN=0 ERROR=0 SKIP=0
+                     │        │ TOTAL=22
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  dbt_test           │ PASS   │ 14:06:45  Running with dbt=1.9.10
+                     │        │ 14:06:45  Registered adapter: duckdb=1.9.6
+                     │        │ ...
+                     │        │ 14:06:45  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  minimize_duckdb    │ PASS   │ Reduced size of
+                     │        │ ./data/lfgs_etl.duckdb
+                     │        │ saved to
+                     │        │ ./data/lfgs_etl_mini.db
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  deploy_to_frontend │ PASS   │ Copied duckdb to
+                     │        │ /coasti/products/superset_docker/data/
+                     │        │ linkfish_genesis_stats.duckdb
+ ────────────────────┼────────┼──────────────────────────────────────────────────────────
+  download_seeds     │ OMIT   │ Did not run (as requested via CLI)
+                     ╵        ╵
+```
+</Terminal>
+
+This created the following files for us:
+- `./data/lfgs_etl.duckdb` The large duckdb that contains a copy of the ingestion data and our transformation output. This is the final BI data (placed in the mart and presentation layers).
+- `./data/lfgs_etl_mini.db` A smaller duckdb, that only contains those final layers of BI data.
+- A copy of this `_mini.db`, located in supersets data directory. This is where our frontend reports will look for it (file name and location have to match).
+
+## Deploying content frontend to superset
+
+Now that we have data in superset, we want to show the preconfigured reports in superset.
+Usually, they come as part of the content package and follow supersets format (that is, yaml files with a certain structure).
+
+In the demo content package, these yaml files live at `superset/frontend` (click [here](https://github.com/coasti-org/linkfish_genesis_stats/tree/main/superset/frontend) to get a feeling for what they look like).
+
+To upload the assets into superset, we use the superset-io tool that is part of coasti:
+
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={50}>
+```bash
+[prompt] cd /coasti/products/linkfish_genesis_stats
+[prompt] coasti superset-io upload ./superset/frontend
+
+INFO:superset_io:Connecting to Superset at: http://localhost:8088
+INFO:superset_io:Connecting to Superset as: admin
+Password [admin]: **doesnt appear when typing**
+```
+</Terminal>
+
+The upload should finish after a few seconds, and the reports should show up in superset:
+
+![Genesis Stats Screenshot](/frontend-screenshots/linkfish_genesis_stats.webp)
+
