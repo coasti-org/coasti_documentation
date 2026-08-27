@@ -3,9 +3,9 @@
 
 ## Übersicht
 
-<div class="diagram caption-right caption-width-80" markdown="block">
-<div class="diagram-chart">
-```mermaid height=600 scale=2 theme=neutral backgroundColor=transparent
+<figure>
+
+```mermaid
 
 flowchart BT
 
@@ -41,8 +41,7 @@ flowchart BT
     back_graph --> front_graph
 
 ```
-</div>
-<div class="diagram-caption" markdown="block">
+<figcaption>
 
 **Abbildung 1: Übersicht der Datenflüsse.**
 
@@ -62,8 +61,9 @@ Diese Trennung erfolgt bewusst, und hat einige Vorteile:
   Der Backend-Server erzeugt die BI-Daten, und übergibt sie an den Frontend-Server, hat aber selbst nur Zugriff auf seine eigene eingeschränkte Kopie der Rohdaten des Fachverfahrens.
   Die Datenströme zwischen den Servern sind gerichtet und beschränkt, so kann der Frontend-Server z.b. weder eigenständig eine neue Kopie vom Backend-Server laden, noch auf den Fachverfahren-Server zugreifen.
 
-</div>
-</div>
+</figcaption>
+
+</figure>
 
 ## Hardware Mindestanforderungen
 

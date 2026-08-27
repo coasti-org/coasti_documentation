@@ -292,3 +292,46 @@ html[data-theme='dark'] {
   background: rgba(216, 236, 41, 0.18);
   border-color: rgba(216, 236, 41, 0.45);
 }
+
+/* ---------- Diagram figures (mermaid chart + caption on the right) ---------- */
+/* Any <figure> that wraps a mermaid diagram gets the caption beside the chart. */
+
+.theme-doc-markdown figure:has(> .docusaurus-mermaid-container) {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+/* Docusaurus renders ```mermaid blocks as .docusaurus-mermaid-container */
+/* The chart keeps its natural SVG width; the caption sits right next to it. */
+.theme-doc-markdown figure:has(> .docusaurus-mermaid-container) > .docusaurus-mermaid-container {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.theme-doc-markdown figure:has(> .docusaurus-mermaid-container) > figcaption {
+  margin: 0;
+  flex: 1 1 30%;
+  min-width: 14rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+  align-self: flex-end;
+}
+
+.theme-doc-markdown figure:has(> .docusaurus-mermaid-container) > figcaption strong {
+  color: var(--ifm-color-emphasis-900);
+  font-weight: 600;
+}
+
+/* Fall back to a stacked layout on narrow viewports. */
+@media (max-width: 900px) {
+  .theme-doc-markdown figure:has(> .docusaurus-mermaid-container) {
+    display: block;
+  }
+
+  .theme-doc-markdown figure:has(> .docusaurus-mermaid-container) > figcaption {
+    margin-top: 0.4rem;
+    min-width: 0;
+  }
+}
