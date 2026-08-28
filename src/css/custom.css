@@ -62,6 +62,7 @@ a:hover {
   text-decoration: none;
 }
 
+
 h1,
 h2,
 h3,
@@ -177,6 +178,8 @@ ins {
   --ifm-toc-link-color: rgba(255, 255, 255, 0.72);
   --ifm-code-background: rgba(255, 255, 255, 0.08);
   --ifm-code-foreground: #d8ec29;
+  --ifm-alert-background-color: rgba(8, 47, 59, 0.52);
+  --ifm-color-secondary-contrast-background: rgba(8, 47, 59, 0.52);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
