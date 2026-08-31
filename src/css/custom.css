@@ -39,6 +39,12 @@
   --ifm-global-radius: 16px;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --coasti-mermaid-node-background: #E6EFF1;
+  --coasti-mermaid-node-border: #153745;
+  --coasti-mermaid-cluster-background: #eff3f3;
+  --coasti-mermaid-cluster-border: #aec2cb;
+  --coasti-mermaid-text: #153745;
+  --coasti-mermaid-link: #0D4B60;
 }
 
 html {
@@ -181,6 +187,12 @@ ins {
   --ifm-alert-background-color: rgba(8, 47, 59, 0.52);
   --ifm-color-secondary-contrast-background: rgba(8, 47, 59, 0.52);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --coasti-mermaid-node-background: #1a6986;
+  --coasti-mermaid-node-border: #87b6c7;
+  --coasti-mermaid-cluster-background: #0d4b60;
+  --coasti-mermaid-cluster-border: #1b6781;
+  --coasti-mermaid-text: #ffffff;
+  --coasti-mermaid-link: #ffffff;
 }
 
 
@@ -321,6 +333,43 @@ html[data-theme='dark'] {
 .theme-doc-markdown figure.figcaption-right > figcaption strong {
   color: var(--ifm-color-emphasis-900);
   font-weight: 600;
+}
+
+/* Mermaid colors follow the active coasti theme. */
+.docusaurus-mermaid-container .node rect,
+.docusaurus-mermaid-container .node polygon,
+.docusaurus-mermaid-container .node circle,
+.docusaurus-mermaid-container .node .label-container,
+.docusaurus-mermaid-container .node .label-container > path:first-child {
+  fill: var(--coasti-mermaid-node-background) !important;
+  stroke: var(--coasti-mermaid-node-border) !important;
+}
+
+.docusaurus-mermaid-container .node .label-container > path:nth-child(2) {
+  fill: none !important;
+  stroke: var(--coasti-mermaid-node-border) !important;
+}
+
+.docusaurus-mermaid-container .cluster rect {
+  fill: var(--coasti-mermaid-cluster-background) !important;
+  stroke: var(--coasti-mermaid-cluster-border) !important;
+}
+
+.docusaurus-mermaid-container .nodeLabel,
+.docusaurus-mermaid-container .edgeLabel,
+.docusaurus-mermaid-container .label text {
+  color: var(--coasti-mermaid-text) !important;
+  fill: var(--coasti-mermaid-text) !important;
+}
+
+.docusaurus-mermaid-container .flowchart-link,
+.docusaurus-mermaid-container .edgePath .path {
+  stroke: var(--coasti-mermaid-link) !important;
+}
+
+.docusaurus-mermaid-container marker path {
+  fill: var(--coasti-mermaid-link) !important;
+  stroke: var(--coasti-mermaid-link) !important;
 }
 
 /* Fall back to a stacked layout on narrow viewports. */
