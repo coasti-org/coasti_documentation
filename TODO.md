@@ -1,7 +1,4 @@
----
-sidebar_position: 1
-sidebar_label: Doku Inhalte
----
+
 
 # Plan for Coasti Documentation
 
@@ -41,7 +38,7 @@ i18n support in Docusaurus
 	- Stufe 3 _"Content erstellen"_
 		- Demo Content Paket im Detail
 
-- Admin Guide 2️⃣ 
+- Admin Guide 2️⃣
 	- Coasti Installer in Details @ PS
 	- Produkt updates via coasti installer 3️⃣
 		- wie funktioniert Copier

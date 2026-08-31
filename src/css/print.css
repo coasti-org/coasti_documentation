@@ -1,0 +1,168 @@
+/* Print-friendly layout for documentation pages. */
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  html,
+  body,
+  [data-theme='dark'],
+  [data-theme='dark'] body,
+  [data-theme='dark'] .main-wrapper {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .navbar,
+  .theme-doc-sidebar-container,
+  .theme-doc-toc-desktop,
+  .theme-doc-toc-mobile,
+  .theme-doc-breadcrumbs,
+  .theme-doc-footer,
+  .pagination-nav,
+  .footer {
+    display: none !important;
+  }
+
+  .main-wrapper,
+  .container,
+  .row,
+  .col {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .theme-doc-markdown {
+    max-width: none !important;
+    color: #000000 !important;
+    line-height: 1.5;
+    --coasti-mermaid-node-background: #E6EFF1;
+    --coasti-mermaid-node-border: #153745;
+    --coasti-mermaid-cluster-background: #eff3f3;
+    --coasti-mermaid-cluster-border: #aec2cb;
+    --coasti-mermaid-text: #153745;
+    --coasti-mermaid-link: #0D4B60;
+  }
+  .theme-doc-markdown h1,
+  .theme-doc-markdown h2,
+  .theme-doc-markdown h3,
+  .theme-doc-markdown h4,
+  .theme-doc-markdown h5,
+  .theme-doc-markdown h6,
+  .theme-doc-markdown strong,
+  .theme-doc-markdown em {
+    color: #0d4b60 !important;
+  }
+
+  .theme-doc-markdown a {
+    color: #000000 !important;
+    text-decoration: underline;
+  }
+
+  .theme-doc-markdown figure.figcaption-right {
+    display: grid;
+    grid-template-columns: max-content minmax(14rem, 1fr);
+    column-gap: 1.5rem;
+    align-items: end;
+    margin: 0.75rem 0 1.25rem;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .theme-doc-markdown figure.figcaption-right > :not(figcaption) {
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .theme-doc-markdown figure.figcaption-right > .docusaurus-mermaid-container {
+    grid-column: 1;
+    width: fit-content;
+    max-width: 100%;
+    max-height: 16cm;
+    margin: 0;
+  }
+
+  .theme-doc-markdown figure.figcaption-right > figcaption {
+    grid-column: 2;
+    margin: 0.4rem 0 0;
+    padding: 0.45rem 0.7rem 0.5rem;
+    border-left: 2px solid #cfd3d8;
+    background: #f7f8fa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: #52565c !important;
+    align-self: end;
+  }
+
+  .theme-doc-markdown figure.figcaption-right > figcaption strong {
+    color: #0d4b60 !important;
+    font-weight: 600;
+  }
+
+  /* TODO: we would want light theme like style for tables, but its still a bit off */
+  .theme-doc-markdown table {
+    width: 100%;
+    border: 0;
+    border-collapse: collapse;
+    background: #ffffff;
+    color: #153745;
+  }
+
+  .theme-doc-markdown th,
+  .theme-doc-markdown td {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #c7d5da;
+  }
+
+  .theme-doc-markdown th {
+    background: #e7f0f3;
+    color: #0d4b60 !important;
+    font-weight: 600;
+  }
+
+  .theme-doc-markdown tbody tr:nth-child(even) {
+    background: #f5f9fa;
+  }
+
+  .theme-doc-markdown tbody td {
+    background: transparent !important;
+  }
+
+  /* Keep diagrams compact enough to leave room for surrounding text. */
+  .theme-doc-markdown figure.figcaption-right > .docusaurus-mermaid-container svg {
+    width: 100%;
+    max-width: 100%;
+    max-height: 16cm;
+    height: auto;
+  }
+
+  .theme-doc-markdown img,
+  .theme-doc-markdown svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .theme-code-block,
+  .alert,
+  .theme-doc-markdown blockquote,
+  table,
+  pre {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .theme-code-block,
+  .theme-doc-markdown blockquote,
+  .alert {
+    border: 1px solid #999 !important;
+    background: #ffffff !important;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}

@@ -8,37 +8,37 @@ import TabItem from '@theme/TabItem';
 
 # Installation
 
-We can get from zero to a working report in superset in about 10 minutes.
-The installation requires some dependencies and the use of command-line tools.
-This tutorial walks you through the process, shows the commands and explains each step.
+In etwa 10 Minuten kommen wir von null zu einem funktionierenden Bericht in Superset.
+Für die Installation werden einige Abhängigkeiten und Kommandozeilenwerkzeuge benötigt.
+Dieses Tutorial führt dich durch den Prozess und zeigt die Befehle.
 
-In short, we will cover the following steps:
+Folgende Schritte werden erklärt:
 
-- Install the coasti CLI.
-- Initialize a new coasti project folder.
-- Setup our Superset docker container.
-- Add a demo content package and run its setup to prepare local configuration.
-- Execute the transformation pipeline to get the BI data ready and deploy it to Superset.
-- Upload the packages frontend assets to Superset.
+- Die coasti-CLI installieren.
+- Einen neuen coasti-Projektordner initialisieren.
+- Unseren Superset-Docker-Container einrichten.
+- Ein Demo-Content-Paket hinzufügen und dessen Setup ausführen, um die lokale Konfiguration vorzubereiten.
+- Die Transformations-Pipeline ausführen, um die BI-Daten vorzubereiten und in Superset bereitzustellen.
+- Die Frontend-Assets des Pakets in Superset hochladen.
 
 :::note
-For production deployments, we set up coasti so that superset runs on a different machine than the transformations. This way, expensive computations of the data-pipeline do not affect the user experience. For simplicity, we put both on the same host in this tutorial.
+In Produktivumgebungen richten wir coasti so ein, dass Superset auf einem anderen Rechner als die Transformationen läuft. Dadurch beeinträchtigen aufwendige Berechnungen der Daten-Pipeline nicht die Benutzererfahrung. Der Einfachheit halber verwenden wir in diesem Tutorial aber nur einen Host.
 :::
 
-## Requirements
+## Voraussetzungen
 
 - [docker](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
 - [git](https://git-scm.com/install/)
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) (used in this tutorial, but most python package managers will do)
-- [Full Requirements](../requirements.mdx): a broader overview, hardware, and more details.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (wird in diesem Tutorial verwendet, die meisten Python-Paketmanager funktionieren aber ebenfalls)
+- [Vollständige Anforderungen](../requirements.mdx): umfassenderer Überblick mit Hardware-Anforderungen und weiteren Details.
 
 
-## Get the coasti installer
+## Den coasti-Installer installieren
 
-The coasti installer is a small python package that wraps around existing open-source tools.
-It allows us to create and manage coasti projects, set up version control, and to add or update content.
+Der coasti-Installer ist ein kleines Python-Paket, das vorhandene Open-Source-Tools miteinander verbindet.
+Damit können wir coasti-Projekte erstellen und verwalten, Versionskontrolle einrichten sowie Content hinzufügen oder aktualisieren.
 
-The easiest way to get the coasti installer is through uv:
+Am einfachsten lässt sich der coasti-Installer mit uv installieren:
 
 <Tabs groupId="os">
 	<TabItem value="macos-linux" label="macOS / Linux" default>
@@ -67,7 +67,7 @@ The easiest way to get the coasti installer is through uv:
 </Tabs>
 
 
-To check it worked, try the help option:
+Um zu prüfen, ob alles funktioniert hat, probiere die Hilfe-Option aus:
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={60} typewriterLineDelay={0}>
 ```bash
@@ -93,13 +93,13 @@ To check it worked, try the help option:
 
 
 
-## Initialize a coasti project
+## Ein coasti-Projekt initialisieren
 
-All products, content and metadata that you use with coasti live in a central folder, a _coasti project_.
-Projects are initialized via `coasti init` and you need to provide a folder path to use.
+Alle Produkte, Inhalte und Metadaten, die du mit coasti verwendest, liegen in einem zentralen Ordner, einem _coasti-Projekt_.
+Projekte werden mit `coasti init` initialisiert. Dafür musst du einen Ordnerpfad angeben.
 
-We recommend to use an absolute and simple path like `/coasti`.
-This makes it a bit easier to map configs into containers, where it helps to use the same paths inside and out.
+Wir empfehlen einen absoluten und einfachen Pfad wie `/coasti`.
+Das macht es etwas einfacher, Konfigurationen in Container einzubinden, da Pfade innerhalb und außerhalb der Container gleich verwendet werden können.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={60}>
 ```bash
@@ -158,13 +158,13 @@ Next steps:
 </Terminal>
 
 
-## Install Apache Superset
+## Apache Superset installieren
 
-With the coasti project set up, we can add superset as a product.
-We provide a batteries-included [docker image](https://github.com/coasti-org/superset_docker.git) that streamlines the installation.
+Nachdem das coasti-Projekt eingerichtet ist, können wir Superset als Produkt hinzufügen.
+Wir stellen ein [Docker-Image](https://github.com/coasti-org/superset_docker.git) mit allen wichtigen Bestandteilen bereit, das die Installation vereinfacht.
 
-First, coasti asks a few questions on how to get the product.
-This lets you choose which branch to use (products are just git repositories) or how to gain access, if your product is in a private repo. Because superset is in a public repo, we dont need authentication.
+Zuerst stellt coasti einige Fragen dazu, wie das Produkt bezogen werden soll.
+So kannst du auswählen, welchen Branch du verwenden möchtest (Produkte sind einfach Git-Repositories) und wie der Zugriff erfolgen soll, falls sich dein Produkt in einem privaten Repository befindet. Da Superset in einem öffentlichen Repository liegt, benötigen wir keine Authentifizierung.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
@@ -185,13 +185,13 @@ Added superset_docker in products.yml
 </Terminal>
 
 
-After adding superset as a product to coasti's metadata, we are asked to _install it_.
-We can either do this directly (type `y` or `↵`) or install later via `coasti product install`.
+Nachdem Superset zu den coasti-Metadaten hinzugefügt wurde, werden wir aufgefordert, es zu _installieren_.
+Wir können dies direkt tun (mit `y` oder `↵`) oder später über `coasti product install` installieren.
 
-This will clone the repository, and guide us through the questions needed to configure superset.
-For most questions, choosing the default by pressing `↵` is fine.
+Dabei wird das Repository geklont und durch Fragen geführt, die zur Konfiguration von Superset benötigt werden.
+Bei den meisten Fragen reicht es aus, die Standardauswahl durch Drücken von `↵` zu übernehmen.
 
-You can later check the details based on your answers in `/coasti/products/superset_docker/config/.env`.
+Die Details deiner Antworten kannst du später in `/coasti/products/superset_docker/config/.env` nachsehen.
 
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={150}>
@@ -247,8 +247,8 @@ Next steps
 ```
 </Terminal>
 
-To launch superset, we follow the suggested next steps.
-This will download the docker image, and launch the container.
+Zum Starten von Superset führen wir die vorgeschlagenen nächsten Schritte aus.
+Dabei wird das Docker-Image heruntergeladen und der Container gestartet.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
@@ -263,8 +263,8 @@ This will download the docker image, and launch the container.
 </Terminal>
 
 
-To launch superset, we follow the suggested next steps.
-This will download the docker image, and launch the container.
+Zum Starten von Superset führen wir die vorgeschlagenen nächsten Schritte aus.
+Dabei wird das Docker-Image heruntergeladen und der Container gestartet.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30}>
 ```bash
@@ -285,14 +285,14 @@ superset-app ...
 </Terminal>
 
 
-Now, we can open a browser and navigate to http://localhost:8088 to login with the credentials we entered earlier.
+Jetzt kannst du einen Browser öffnen und zu http://localhost:8088 navigieren, um dich mit den zuvor eingegebenen Zugangsdaten anzumelden.
 
 ![Superset Landing Page](/frontend-screenshots/superset_landing_page.webp)
 
-With the `up` command we just used, we launched the superset-app container and attached to it. This directly shows all output in the Terminal.
-To stop the container, and return to our shell, we can press `ctrl + c`.
+Mit dem gerade verwendeten `up`-Befehl haben wir den superset-app-Container gestartet und uns mit ihm verbunden. Dadurch wird die gesamte Ausgabe direkt im Terminal angezeigt.
+Um den Container zu stoppen und zur Shell zurückzukehren, drücke `Strg + C`.
 
-If we want the superset containers to run in the background, we can start detached by using `docker compose up -d`
+Wenn die Superset-Container im Hintergrund laufen sollen, kannst du sie mit `docker compose up -d` detached starten.
 
 <Terminal>
 ```bash
@@ -300,11 +300,11 @@ docker compose -f ./docker/docker-compose.yml --env-file ./config/.env up -d sup
 ```
 </Terminal>
 
-## Adding content and running dbt
+## Content hinzufügen und dbt ausführen
 
-Now that we have superset up and running, let's add some reports.
+Nachdem Superset läuft, können wir einige Berichte hinzufügen.
 
-Here, we use the [demo package](https://github.com/coasti-org/linkfish_genesis_stats) that shows a few selected stats from [Destatis](https://www.destatis.de).
+Dafür verwenden wir das [Demo-Paket](https://github.com/coasti-org/linkfish_genesis_stats), das einige ausgewählte Statistiken von [Destatis](https://www.destatis.de) zeigt.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={150}>
 ```bash
@@ -408,12 +408,11 @@ Copied sample: python/orchestration.py
 ```
 </Terminal>
 
+Für einen schnellen Einstieg enthält das Beispiel bereits Rohdaten. Daher benötigen wir keine Ingestion und können den Download-Schritt überspringen.
+Die Transformationen, die die BI-Daten für unsere Berichte erstellen, müssen wir trotzdem ausführen.
 
-To get us started quickly, the example already contains raw data, so that we do not need an ingestion and can omit the download step.
-However, we still need to run the transformations that will create the BI data for our reports.
-
-The following command is the bread-and butter step of a the content package.
-In a production setup, it would run regularly, e.g. every night, to fetch new raw data, process it, and update the BI data visible in the reports.
+Der folgende Befehl ist der wichtigste Schritt eines Content-Pakets.
+In einer Produktivumgebung würde er regelmäßig, zum Beispiel jede Nacht, ausgeführt werden, um neue Rohdaten abzurufen, zu verarbeiten und die in den Berichten sichtbaren BI-Daten zu aktualisieren.
 
 <Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={50}>
 ```bash
@@ -434,6 +433,7 @@ In a production setup, it would run regularly, e.g. every night, to fetch new ra
                      │        │ linkfish_genesis_stats 1.0.0
                      │        │ dbt-labs/dbt_utils 1.4.1
                      │        │ pystatis 0.5.5
+                     │        │ ...
  ────────────────────┼────────┼──────────────────────────────────────────────────────────
   dbt_seed           │ PASS   │ 14:06:39  Running with dbt=1.9.10
                      │        │ 14:06:39  Registered adapter: duckdb=1.9.6
@@ -465,21 +465,21 @@ In a production setup, it would run regularly, e.g. every night, to fetch new ra
 ```
 </Terminal>
 
-This created the following files for us:
-- `./data/lfgs_etl.duckdb` The large duckdb that contains a copy of the ingestion data and our transformation output. This is the final BI data (placed in the mart and presentation layers).
-- `./data/lfgs_etl_mini.db` A smaller duckdb, that only contains those final layers of BI data.
-- A copy of this `_mini.db`, located in supersets data directory. This is where our frontend reports will look for it (file name and location have to match).
+Dieser Befehl hat die folgenden Dateien für uns erstellt:
+- `./data/lfgs_etl.duckdb` Die große DuckDB, die eine Kopie der Ingestion-Daten und unserer Transformationsergebnisse enthält. Dies sind die finalen BI-Daten (in den Mart- und Presentation-Layern).
+- `./data/lfgs_etl_mini.db` Eine kleinere DuckDB, die nur diese finalen BI-Datenebenen enthält.
+- Eine Kopie dieser `_mini.db`, die sich im Datenverzeichnis von Superset befindet. Dort greifen unsere Frontend-Berichte darauf zu (Dateiname und Speicherort müssen übereinstimmen).
 
-## Deploying content frontend to superset
+## Content-Frontend in Superset bereitstellen
 
-Now that we have data in superset, we want to show the preconfigured reports in superset.
-Usually, they come as part of the content package and follow supersets format (that is, yaml files with a certain structure).
+Nachdem die Daten in Superset vorhanden sind, möchten wir die vorkonfigurierten Berichte in Superset anzeigen.
+Normalerweise sind sie Teil des Content-Pakets und folgen dem Superset-Format, also YAML-Dateien mit einer bestimmten Struktur.
 
-In the demo content package, these yaml files live at `superset/frontend` (click [here](https://github.com/coasti-org/linkfish_genesis_stats/tree/main/superset/frontend) to get a feeling for what they look like).
+Im Demo-Content-Paket liegen diese YAML-Dateien unter `superset/frontend` (klicke [hier](https://github.com/coasti-org/linkfish_genesis_stats/tree/main/superset/frontend), um einen Eindruck von ihrem Aufbau zu bekommen).
 
-To upload the assets into superset, we use the superset-io tool that is part of coasti:
+Um die Assets in Superset hochzuladen, verwenden wir das zu coasti gehörende superset-io-Tool:
 
-<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterSpeed={30} typewriterLineDelay={50}>
+<Terminal copyOnlyPrompts highlightPrompts typewriter typewriterLineDelay={50}>
 ```bash
 [prompt] cd /coasti/products/linkfish_genesis_stats
 [prompt] coasti superset-io upload ./superset/frontend
@@ -490,7 +490,6 @@ Password [admin]: **doesnt appear when typing**
 ```
 </Terminal>
 
-The upload should finish after a few seconds, and the reports should show up in superset:
+Der Upload sollte nach wenigen Sekunden abgeschlossen sein und die Berichte sollten in Superset erscheinen:
 
 ![Genesis Stats Screenshot](/frontend-screenshots/linkfish_genesis_stats.webp)
-
