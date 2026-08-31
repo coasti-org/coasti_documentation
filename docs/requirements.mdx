@@ -1,38 +1,42 @@
+---
+sidebar_position: 2
+sidebar_label: Requirements
+---
 
-# Technische Anforderungen
+# Requirements
 
-## Übersicht
+## Overview
 
-<figure>
+<figure class="figcaption-right">
 
 ```mermaid
 
 flowchart BT
 
-    subgraph vs_graph["Fachverfahren-Server"]
-        vs_data["💾 Daten Fachverfahren"]
+    subgraph vs_graph["Source server"]
+        vs_data["💾 Source data"]
     end
 
-    subgraph back_graph["Backend-Server"]
+    subgraph back_graph["Backend server"]
         direction BT
-        back_raw["💾 Daten Fachverfahren"]
+        back_raw["💾 Source data"]
         back_dbt("⚙️ Transformation")
-        back_data["💾 Daten BI"]
+        back_data["💾 BI data"]
 
         back_raw --> back_dbt
         back_dbt --> back_data
     end
 
-    subgraph front_graph["Frontend-Server"]
+    subgraph front_graph["Frontend server"]
         direction BT
         front_superset("📊 Superset")
-        front_data["💾 Daten BI"]
+        front_data["💾 BI data"]
 
         front_data --> front_superset
     end
 
-    vs_user(["👤 Fachverfahren Nutzer:in"])
-    front_user(["👤 BI Nutzer:in"])
+    vs_user(["👤 Source user"])
+    front_user(["👤 BI user"])
 
     vs_user <--> vs_graph
     front_graph <--> front_user
@@ -43,66 +47,66 @@ flowchart BT
 ```
 <figcaption>
 
-**Abbildung 1: Übersicht der Datenflüsse.**
+**Figure 1: Overview of data flows.**
 
-In einem typischen coasti Content-Paket fließen Daten durch drei Server (beginnend unten in der Abbildung):
+In a typical coasti content package, data flows through three servers (starting at the bottom of the figure):
 
-- _Fachverfahren-Server_ (enthält die Rohdaten des Quellsystems)
-- _Backend-Server_ (transformiert Daten in die BI-Darstellung)
-- _Frontend-Server_ (stellt BI-Daten für Endanwender:innen bereit)
+- _Source server_ (contains the raw data from the source system)
+- _Backend server_ (transforms data into the BI representation)
+- _Frontend server_ (makes BI data available to end users)
 
-Diese Trennung erfolgt bewusst, und hat einige Vorteile:
+This separation is intentional and has several advantages:
 
-- Der für den operativen Betrieb benötigte Fachverfahren-Server bleibt von der BI-Lösung weitestgehend unberührt. Benötigte Daten werden während der _Ingestion_ kopiert.
-- So finden alle rechenintensiven Transformationen ausschließlich auf dem Backend-Server statt.
-- Das schont sowohl den Fachverfahren-Server, als auch den Frontend-Server.
-  Beide sind relevant für das Nutzungserlebnis der Endanwender:innen.
-- Daten sind isoliert: der Frontend-Server hat nur Zugriff auf seine Kopie der BI-Daten.
-  Der Backend-Server erzeugt die BI-Daten, und übergibt sie an den Frontend-Server, hat aber selbst nur Zugriff auf seine eigene eingeschränkte Kopie der Rohdaten des Fachverfahrens.
-  Die Datenströme zwischen den Servern sind gerichtet und beschränkt, so kann der Frontend-Server z.b. weder eigenständig eine neue Kopie vom Backend-Server laden, noch auf den Fachverfahren-Server zugreifen.
+- The source server required for operational use remains largely unaffected by the BI solution. Required data is copied during _ingestion_.
+- This ensures that all computationally intensive transformations take place exclusively on the backend server.
+- This reduces the load on both the source server and the frontend server.
+    Both are relevant to the end-user experience.
+- Data is isolated: the frontend server only has access to its copy of the BI data.
+    The backend server generates the BI data and transfers it to the frontend server, but itself only has access to its own restricted copy of the source's raw data.
+    The data flows between the servers are directional and restricted. This means, for example, that the frontend server can neither independently download a new copy from the backend server nor access the source server.
 
 </figcaption>
 
 </figure>
 
-## Hardware Mindestanforderungen
+## Minimum Hardware Requirements
 
-Für _Apache Superset_ und die Extract-Transform-Load (ETL) Berechnungen auf dem Backend-Server werden Docker Container verwendet.
-Im minimalen Setup werden zumindest zwei Linux-Hosts benötigt.
-Dies bietet unter anderem folgende Vorteile:
-- Container-Umgebungen können gut skaliert, geupdated und migirert werden.
-- Linux-Hosts entsprechen dem Open-Source Prinzipien von coasti und vermeiden Lizenzkosten.
-- Die benötigte Docker-Runtime funktioniert unter Linux sehr robust, auf anderen Plattformen müsste zusätzlich emuliert werden.
+Docker containers are used for _Apache Superset_ and the Extract-Transform-Load (ETL) computations on the backend server.
+The minimum setup requires at least two Linux hosts.
+Among other things, this offers the following advantages:
+- Container environments can be scaled, updated, and migrated easily.
+- Linux hosts are consistent with coasti's open-source principles and avoid licensing costs.
+- The required Docker runtime works very reliably on Linux; on other platforms, additional emulation would be required.
 
 
 |                 |  Backend-Server                | Frontend-Server Superset       |
 |-----------------|--------------------------------|--------------------------------|
-| Betriebssystem  | Ubuntu 24.04 LTS               | Ubuntu 24.04 LTS               |
-| Prozessorkerne  | 4                              | 4                              |
-| Arbeitsspeicher | 16 GB                          | 16 GB                          |
-| Speicherplatz   | 150 GB                         | 50 GB                          |
+| Operating system | Ubuntu 24.04 LTS               | Ubuntu 24.04 LTS               |
+| CPU cores        | 4                              | 4                              |
+| RAM              | 16 GB                          | 16 GB                          |
+| Storage          | 150 GB                         | 50 GB                          |
 
 
-## Datenabruf vom Quellsystem
+## Data Retrieval from the Source System
 
-Für das Bereitstellen von Daten aus den Fachverfahren wird meist ein Lesezugriff auf die Quelltabellen benötigt.
-Die Quelltabellen liegen üblicherweise in Datenbanken wie Progress, Oracle, oder MSSQL.
+Providing data from the source usually requires read access to the source tables.
+The source tables are typically located in databases such as Progress, Oracle, or MSSQL.
 
-Unter Nutzung der erstellten Zugänge werden nächtlich alle benötigten Daten von _LÄMMkom Analyse_ abgerufen.
-Read-only Berechtigungen sind ausreichend, es werden keine Daten auf dme Fachverfahren-Server bearbeitet.
+Using the created credentials, _LÄMMkom Analyse_ retrieves all required data nightly.
+Read-only permissions are sufficient; no data is modified on the source server.
 
-### Progress als Quelldatenbank
+### Progress as the Source Database
 
-Der Datenabruf von Progress erfolgt häufig via ODBC.
-Dazu muss ein SQL-Broker bereitgestellt werden, was gegebenefalls mit den Herstellenden der Fachverfahren koordiniert werden muss.
+Data is often retrieved from Progress via ODBC.
+For this purpose, an SQL broker must be provided, which may need to be coordinated with the source system's vendors.
 
 
-### Oracle als Quelldatenbank
+### Oracle as the Source Database
 
-Bei Nutzung von Oracle als Quellsystem ist eine Benutzer:in mit Leserechten erforderlich.
+When Oracle is used as the source system, a user with read permissions is required.
 
-Mit nachfolgendem Befehl lässt sich eine solche „ReadOnly“-Benutzer:in anlegen.
-Der Zugriff lässt sich aber auch auf einzelne benötigte Tabellen limitieren.
+The following command can be used to create such a read-only user.
+Access can also be restricted to individual required tables.
 
 ```sql
 CREATE USER ro_coasti
@@ -111,47 +115,47 @@ CREATE USER ro_coasti
     TEMPORARY TABLESPACE temp;
 
 GRANT CREATE SESSION to ro_coasti
-    CREATE ROLE ro_Fachverfahren;
+    CREATE ROLE ro_Source;
 
 BEGIN
     FOR x IN (SELECT * FROM dba_tables WHERE owner='pub') LOOP
-        EXECUTE IMMEDIATE 'GRANT SELECT ON pub.' || x.table_name || ' TO ro_Fachverfahren';
+        EXECUTE IMMEDIATE 'GRANT SELECT ON pub.' || x.table_name || ' TO ro_Source';
     END LOOP;
 END;
 
-GRANT ro_Fachverfahren TO ro_coasti;
+GRANT ro_Source TO ro_coasti;
 
 ```
 
-## Netzwerk-Verbindungen
+## Network Connections
 
 
-- Zugriff auf Quelldaten: Zum nächtlichen Datenabruf wird der Zugriff auf den Fachverfahren-Server benötigt.
-    Die Port- und Netzwerk-Freigaben sind von der Datenbank abhängig. In der Regel:
-    - Vom Backend-Server zum Fachverfahren-Server
+- Access to source data: Access to the source server is required for nightly data retrieval.
+    The required ports and network rules depend on the database. Typically:
+    - From the backend server to the source server
     - MSSQL: `1433 TCP`
     - Progress: `14011 TCP`
     - Oracle: `1521 TCP`
-- Zum Übertragen der aufbreiteten BI-Daten wird eine SSH/rsync Verbindung benötigt:
-    - Vom Backend-Server zum Frontend-Server
+- An SSH/rsync connection is required to transfer the prepared BI data:
+    - From the backend server to the frontend server
     - SSH: `22 TCP`
-- Für das Reporting der Nachtläufe per Email werden entsprechende Zugang benötigt:
-    - Vom Backend-Server zum on-prem Mail-Server
-    - Port abhängig von lokaler Konfiguration, üblich sind `25, 465, 587`
-- Für den Zugriff der Endanwender:innen auf die BI-Dashboards muss der Frontend-Server erreichbar sein:
-    - Von LAN zu Frontend-Server
+- Appropriate access is required to report nightly runs by email:
+    - From the backend server to the on-premises mail server
+    - Port depends on the local configuration; common ports are `25, 465, 587`
+- The frontend server must be reachable so that end users can access the BI dashboards:
+    - From the LAN to the frontend server
     - HTTP: `80 TCP/UDP`
     - HTTPS: `443 TCP/UDP`
-- Für die Erreichbarkeit des Frontend-Servers werden eine Domain-Weiterleitung sowie SSL-Zertifikate benötigt.
-    - Weiterleitung der gewünschten Domain, innerhalb des LAN zu Frontend-Server. Typischerweise `https://coasti.example.de`
-    - Mit on-prem CA signiertes SSL-Zertifkat (`fullchain.pem`, `private_key.pem`)
-- Während der Installation oder Wartung:
-    - Für den Zeitraum der Installation von coasti und Content-Paketen wird eine Internetverbindung benötigt, um Quellpakete zu laden.
-      Nach abgschlossener Installation funktionieren alle Systeme offline.
-        - Uplink von Backend-Server und Frontend-Server
-    - Wartungs-Zugriff
-        - Wenn die Installation von Drittanbietern erfolgt, wird Zugriff ins Intranet durch einen Jump-Host benötigt. Dieser kann entweder per VPN oder Remote-Control Lösungen wie TeamViewer bereitgestellt werden.
-        - Vom Jump-Host aus werden dann Zugriffe auf Backend- und Frontend-Server benötigt.
+- A domain redirect and SSL certificates are required to make the frontend server accessible.
+    - Redirect the desired domain to the frontend server within the LAN. Typically: `https://coasti.example.de`
+    - An SSL certificate signed by an on-premises CA (`fullchain.pem`, `private_key.pem`)
+- During installation or maintenance:
+    - An internet connection is required during the installation of coasti and content packages to download source packages.
+      After installation is complete, all systems function offline.
+        - Uplink from the backend and frontend servers
+    - Maintenance access
+        - If installation is performed by a third party, intranet access via a jump host is required. This can be provided either via VPN or remote-control solutions such as TeamViewer.
+        - Access to the backend and frontend servers is then required from the jump host.
             - SSH: `22 TCP`
             - HTTP: `80 TCP/UDP`
             - HTTP: `8088 TCP/UDP`
