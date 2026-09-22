@@ -165,8 +165,9 @@ python environment to run an ETL stack.
 
 Use `copier recopy` when the template itself should stay at the current
 version, but its files or tasks need to be generated again. This is useful,
-for example, after changing an answer or when a new module or package should
-be installed by the template's tasks:
+for example, after changing an answer, or when the product features modules
+that can be enabled by rerunning the template's
+[tasks](https://copier.readthedocs.io/en/stable/configuring/#tasks):
 
 ```bash
 copier recopy \
@@ -270,5 +271,5 @@ copier recopy \
 - [Copier documentation](https://copier.readthedocs.io/en/stable/)
     - [In particular: updating a project](https://copier.readthedocs.io/en/stable/updating/)
 - [coasti products](../../core-concepts/coasti-products)
-
+- coasti products use [SemVer](https://semver.org/) for version numbering. See als [PEP440](https://peps.python.org/pep-0440/)
 
