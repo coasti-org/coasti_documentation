@@ -175,11 +175,11 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Initiative Website',
+                label: 'coasti Initiative',
                 href: 'https://coasti.org',
               },
               {
-                label: 'Produktseite',
+                label: 'coasti Gmbh',
                 href: 'https://coasti.de',
               },
               {

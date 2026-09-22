@@ -122,6 +122,11 @@ ins {
   backdrop-filter: blur(10px);
 }
 
+
+.menu {
+    padding: 0.5em !important;
+}
+
 .menu__link {
   border-radius: 999px;
 }
@@ -137,6 +142,14 @@ ins {
 
 .theme-doc-markdown {
   line-height: 1.65;
+}
+
+.theme-doc-markdown em {
+  margin-inline: 0.2em;
+}
+
+.pagination-nav {
+  display: none;
 }
 
 .theme-doc-markdown blockquote,
@@ -240,11 +253,6 @@ html[data-theme='dark'] {
 
 [data-theme='dark'] .navbar__brand {
   gap: 0.7rem;
-}
-
-[data-theme='dark'] .navbar__logo img,
-[data-theme='dark'] .navbar__logo svg {
-  filter: brightness(1.35) contrast(1.15) drop-shadow(0 0 10px rgba(216, 236, 41, 0.18));
 }
 
 [data-theme='dark'] .breadcrumbs__link {
