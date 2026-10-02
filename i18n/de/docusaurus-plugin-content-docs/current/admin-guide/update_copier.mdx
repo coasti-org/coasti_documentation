@@ -1,0 +1,284 @@
+---
+sidebar_position: 1
+sidebar_label: Produkte updaten
+---
+
+# coasti-Produkte updaten
+
+## Der einfache Weg: mit dem coasti-Installer
+
+`coasti product update` aus dem coasti-Projektverzeichnis ausführen:
+
+```bash
+cd /coasti
+coasti product update <product_id>
+```
+
+Zum Beispiel:
+
+```bash
+coasti product update linkfish_genesis_stats
+```
+
+Der Befehl liest Repository, Version, Authentifizierung und Installationspfad
+aus `config/products.yml`.
+Außerdem findet er den [answers-file](https://copier.readthedocs.io/en/stable/configuring/#the-copier-answersyml-file)
+des Produkts und übergibt die hinterlegten Zugangsdaten an Copier.
+
+Standardmäßig wird das Produkt auf die in `products.yml` gespeicherte
+Versionsreferenz upgedatet. Diese sollte standardmäßig auf die neueste
+getaggte Produktversion zeigen.
+
+Um eine andere Referenz auszuwählen, `--vcs-ref` verwenden (weitere Details
+stehen [weiter unten](#versionen-auswählen)):
+
+```bash
+coasti product update linkfish_genesis_stats --vcs-ref v1.1.0
+```
+
+Wenn sich die Referenz ändert, updatet coasti auch den Produkteintrag in
+`config/products.yml`. Mit `--pretend` lässt sich der Vorgang prüfen, ohne
+Änderungen zu schreiben:
+
+```bash
+coasti product update linkfish_genesis_stats --pretend
+```
+
+Wenn ein Produkt seinen [answers-file](https://copier.readthedocs.io/en/stable/configuring/#the-copier-answersyml-file)
+an einem anderen Ort ablegt, kann dies manuell angegeben werden (der Pfad ist
+relativ zum installierten Produktverzeichnis):
+
+```bash
+coasti product update linkfish_genesis_stats \
+	--answers-file ./coasti_install_answers.yml
+```
+
+### Praktische Schritt-für-Schritt-Anleitung
+
+Der übliche Ablauf für ein Update ist:
+
+1. Changelog des Produkts lesen und die Hinweise zu Migrationen prüfen.
+2. Alle offenen Änderungen in der Versionskontrolle des coasti-Projekts
+	committen und auf einen neuen Branch wechseln.
+3. Backup von Konfigurationsdateien erstellen, die nicht von der
+   Versionskontrolle erfasst werden. Der Backup-Ort muss außerhalb des
+   coasti-Projekts liegen.
+4. `coasti product update <product_id>`.
+5. Änderungen prüfen, insbesondere den erzeugten Diff in
+   `products/<product_id>`.
+6. Tests, Migrationen oder Deployment-Schritte des Produkts ausführen.
+7. Änderungen in den zuvor erstellten Branch committen. Bei erfolgreichem
+	Test in `main` mergen.
+
+## Wie funktionieren Updates?
+
+Ein coasti-Produkt besteht aus drei Teilen:
+
+- `config/products.yml` – Metadaten zum Produkt. Hier stehen Produkt-ID, Repository,
+  Installationspfad und Versionsreferenz.
+- `config/secrets/` – optionale Zugangsdaten für private Produkt-Repositories.
+- `products/<product_id>` – der installierte Produktcode.
+
+Der installierte Produktcode wird aus einer [Copier-Template](https://copier.readthedocs.io/en/stable/)
+erzeugt. Der coasti-Installer verwaltet die ersten beiden Teile und verwendet
+Copier für den dritten Teil: Template-Änderungen werden in das installierte
+Verzeichnis übernommen, während lokale Anpassungen erhalten bleiben.
+
+![products.yml](/frontend-screenshots/product_config.webp)
+
+Coasti ruft Copier mit dem installierten Produkt als Zielverzeichnis auf.
+Copier vergleicht die installierten Dateien mit der vorherigen Template-Version
+und übernimmt die Änderungen der neuen Template-Version. Lokal hinzugefügte
+Dateien sind keine Template-Dateien und bleiben erhalten. Dateien, die sowohl
+lokal als auch im Upstream geändert wurden, können manuelle Konfliktauflösung
+erfordern – diese ist einfach möglich, weil sowohl Produkte als auch
+coasti-Projekte versioniert werden.
+
+Updates sollten weder Produktkonfigurationsdaten ändern noch das operative
+Update-Verfahren des Produkts ausführen. Die genauen Änderungen von Version zu
+Version werden jedoch vom Produkt-Maintainer festgelegt; coasti hat darauf
+keinen Einfluss. So kann nach einem Datei-Update beispielsweise weiterhin eine
+Datenbankmigration, eine Abhängigkeitssynchronisierung oder ein Upload ins
+Frontend erforderlich sein.
+
+Ein Update des Produktcodes updatet nicht automatisch das, was Benutzer im
+Superset-Frontend sehen. Superset speichert Dashboards, Charts, Datasets und
+andere Frontend-Objekte in einer eigenen Datenbank. Wenn ein Content-Paket
+upgedatete Superset-Assets enthält, müssen diese nach dem Produkt-Update
+manuell hochgeladen werden, zum Beispiel mit `coasti superset-io upload`.
+Die geplanten Änderungen müssen vor dem Upload sorgfältig geprüft werden!
+
+## Mit Copier updaten
+
+Für die meisten Updates sollte der coasti-Befehl verwendet werden, weil er die
+Installer-Metadaten und den Produktstatus synchron hält. Direkte Copier-Befehle
+sind sinnvoll, wenn eine Copier-Funktion benötigt wird, die der coasti-Befehl
+nicht anbietet, oder wenn ein Template neu konfiguriert werden soll.
+
+Im Folgenden werden einige häufige Copier-Befehle und Beispiele gezeigt.
+
+Zunächst in das installierte Produktverzeichnis wechseln:
+
+```bash
+cd /coasti/products/<product_id>
+```
+
+Die folgenden Beispiele gehen davon aus, dass die Antwortdatei des Produkts
+`coasti_install_answers.yml` heißt. Der tatsächliche Dateiname im
+Produktverzeichnis sollte geprüft werden. Eine häufige Alternative ist Copiers Standarddatei
+`.copier-answers.yml`.
+
+:::note
+Bei Änderungen an einer Antwort oder Template-Referenz mit direkten Copier-
+Befehlen muss `config/products.yml` selbst upgedatet werden, damit die coasti-
+Metadaten den installierten Stand beschreiben. Copier verwendet oder verwaltet
+außerdem keine Zugangsdaten in `config/secrets/`.
+:::
+
+### Template updaten und Fragen erneut beantworten
+
+`copier update` verwenden, um ein neueres Template abzurufen und die Fragen
+des Templates erneut zu prüfen:
+
+```bash
+copier update
+```
+
+Um die bisherigen Antworten zu verwenden und eine einzelne Antwort explizit zu
+überschreiben, können Daten angegeben werden:
+
+```bash
+copier update --defaults \
+	--data updated_question="my new answer"
+```
+
+Der mit `--data` übergebene Wert kann auch mit Copiers Option `--data-file` aus
+einer Datei gelesen werden. Beachte, dass `--defaults` auch Standardwerte aus
+dem neuen Template übernimmt. Neu hinzugekommene Fragen können daher
+unbemerkt mit Template-Standardwerten beantwortet werden. Für ein
+reproduzierbares Update können sowohl die Antwortdatei als auch die
+Datendatei explizit angegeben werden:
+
+```bash
+copier update --trust \
+	--vcs-ref v1.1.0 \
+	--answers-file ./coasti_install_answers.yml \
+	--data-file ./coasti_install_answers.yml
+```
+
+`--trust` ist für Templates erforderlich, die Aufgaben ausführen, etwa um die
+benötigte Python-Umgebung für einen ETL-Stack einzurichten.
+
+### Neu konfigurieren, ohne zu updaten
+
+`copier recopy` verwenden, wenn die Template-Version unverändert bleiben soll,
+Installations-Fragen aber erneut beantwortet werden sollen. Das ist zum
+Beispiel sinnvoll, falls das Produkt zusätzliche Module unterstützt, die durch
+erneutes Ausführen der
+[Template-tasks](https://copier.readthedocs.io/en/stable/configuring/#tasks)
+aktiviert werden können.
+
+```bash
+copier recopy \
+	--vcs-ref=:current: \
+	--trust \
+	--answers-file ./coasti_install_answers.yml
+```
+
+`copier recopy` wertet das Template mit den gespeicherten Antworten erneut aus.
+Den Diff sorgfältig prüfen: Template-Dateien können neu erzeugt werden und
+Template-Aufgaben können zusätzliche Vorgänge ausführen.
+
+### Versionen auswählen
+
+Copiers Option `--vcs-ref` akzeptiert einen Git-Branch, ein Tag oder einen
+Commit. Die folgenden Werte werden von Copier erkannt:
+
+| Copier-Argument | Bedeutung | Verwendung mit der coasti-CLI |
+| --- | --- | --- |
+| `--vcs-ref ''` | Nutzt die neueste stabile getaggte Version. | ✅ |
+| `--prerelease` | Bezieht Vorabversionen in die Auswahl der neuesten Version ein. | ❌ |
+| `--vcs-ref v1.1.0` | Spezifische getaggte Version ... | ✅ |
+| `--vcs-ref my_branch` | ... oder Branch | ✅ |
+| `--vcs-ref 00e16b4b` | ... oder Commit | ✅ |
+| `--vcs-ref :current:` | Behält die aktuell installierte Template-Version bei. | ❌ |
+| `--vcs-ref HEAD` | Verwendet das aktuelle `HEAD` des Repositories, also den neuesten Commit im aktiven Branch. | ✅ |
+
+Der coasti-Installer übergibt das Argument `--vcs-ref` direkt an Copier, sodass
+beide Ansätze konsistent sind.
+
+Der einzige subtile Unterschied besteht darin, dass `--vcs-ref` nicht angegeben
+wird: In diesem Fall verhält sich Copier so, als wäre ein leerer String
+übergeben worden, und verwendet die neueste getaggte Version. Der coasti-
+Installer verwendet dagegen die in `config/products.yml` gespeicherte
+`vcs_ref`-Angabe. Dort steht der Wert, der bei der Installation oder beim
+letzten Update festgelegt wurde.
+
+### Downgrade oder Rollback
+
+Ein Downgrade ist möglich, aber es handelt sich um eine _Wiederherstellung_ und
+nicht um ein normales Update. Vor dem Versuch:
+
+1. Einen Branch im coasti-Repository erstellen, damit der Vorgang rückgängig
+   gemacht werden kann.
+2. Die Git-Historie verwenden, um den gewünschten Stand zu bestimmen, und
+	lokale Änderungen sichern.
+3. Gewünschte Template-Version mit `copier recopy` erneut ausrollen, zum Beispiel:
+
+```bash
+copier recopy --vcs-ref=v1.0.0 \
+    --trust \
+    --answers-file ./coasti_install_answers.yml
+```
+
+Dabei werden Template-Dateien durch die ausgewählte Version ersetzt. Anpassungen
+an diesen Dateien, die nach dem Deployment vorgenommen wurden, können daher
+überschrieben werden. Dateien, die in einer späteren Template-Version
+hinzugekommen sind, werden jedoch nicht entfernt. Die Git-Historie hilft,
+um solche Dateien gezielt zu entfernen oder wiederherzustellen.
+
+Nach einem direkten Rollback `config/products.yml` prüfen und
+`vcs_ref` so anpassen, dass es der eingesetzten Version entspricht.
+
+
+### Copier-Beispiele
+
+```bash
+# Das Template updaten und alle Fragen erneut stellen.
+copier update
+
+# Mit den bisherigen Antworten updaten und eine Antwort überschreiben.
+# Die Überschreibung kann auch über --data-file angegeben werden.
+# Achtung: --defaults übernimmt auch Standardwerte aus dem neuen Template.
+# Neue Fragen mit Standardwerten können dadurch übersprungen werden.
+copier update \
+	--defaults \
+	--data updated_question="my new answer"
+
+# Fragen erneut stellen und Antworten updaten, aber das Template nicht
+# updaten.
+copier update --vcs-ref=:current:
+
+# Auf eine bestimmte Template-Version updaten und die bisherigen Antworten
+# verwenden, ohne das --defaults-Problem:
+copier update \
+	--trust \
+	--vcs-ref v1.1.0 \
+	--answers-file ./coasti_install_answers.yml \
+	--data-file ./coasti_install_answers.yml
+
+# Das aktuelle Template erneut ausführen, ohne seine Version zu ändern.
+# Copier stellt die Template-Fragen erneut und schlägt die bisherigen Antworten vor.
+# Nützlich, um Template-Aufgaben erneut auszuführen oder zusätzliche Module zu aktivieren.
+copier recopy \
+	--vcs-ref=:current: \
+	--trust \
+	--answers-file ./coasti_install_answers.yml
+```
+
+## Weiterführende Links
+
+- [Copier-Dokumentation](https://copier.readthedocs.io/en/stable/)
+	- [Insbesondere: Ein Projekt updaten](https://copier.readthedocs.io/en/stable/updating/)
+- [coasti Produkte](../../core-concepts/coasti-products)
+- coasti Produkte verwenden [SemVer](https://semver.org/) für die Vergabe von Versionsnummern. Siehe auch [PEP440](https://peps.python.org/pep-0440/)
